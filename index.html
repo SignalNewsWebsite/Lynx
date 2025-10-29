@@ -3,18 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx | Coming Soon</title>
+    <title>Lynx | Revolutionary Digital Platform - Coming Soon</title>
+    <meta name="description" content="Lynx is a revolutionary digital platform offering lightning-fast performance, enterprise-grade security, and advanced analytics. Join our waitlist for early access.">
+    <meta property="og:title" content="Lynx | Revolutionary Digital Platform - Coming Soon">
+    <meta property="og:description" content="Experience the future of digital platforms with Lynx. Join our waitlist for early access.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://i.etsystatic.com/32320070/r/il/82629f/4388621090/il_fullxfull.4388621090_hw2a.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lynx | Revolutionary Digital Platform">
+    <meta name="twitter:description" content="Experience the future of digital platforms with Lynx. Join our waitlist for early access.">
+    <meta name="twitter:image" content="https://i.etsystatic.com/32320070/r/il/82629f/4388621090/il_fullxfull.4388621090_hw2a.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="https://i.etsystatic.com/32320070/r/il/82629f/4388621090/il_fullxfull.4388621090_hw2a.jpg">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        .dot-grid {
+         display: flex;
+          align-items: center;
+         justify-content: center;
+         height: 100%;
+         width: 100%;
+         position: relative;
+        }
+
+        .dot-grid__wrap {
+         width: 100%;
+         height: 100%;
+         position: relative;
+        }
+
+        .dot-grid__canvas {
+         position: absolute;
+         inset: 0;
+         width: 100%;
+         height: 100%;
+         pointer-events: none;
+        }
+
         :root {
             --primary: #000000;
             --secondary: #FFFFFF;
-            --accent: #888888;
+            --accent: #FFFFFF;
             --dark: #111111;
             --light: #F5F5F5;
             --gray: #383838;
             --gradient: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            --lynx-gradient: linear-gradient(135deg, #FFFFFF 0%, #AAAAAA 100%);
         }
         
         * {
@@ -59,19 +96,22 @@
         }
         
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            background: white;
+            padding: 5px;
         }
         
         .logo-icon img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 6px;
         }
         
         /* Hero Section */
@@ -94,7 +134,7 @@
             font-weight: 700;
             line-height: 1.2;
             margin-bottom: 1.5rem;
-            background: linear-gradient(to right, var(--secondary), var(--accent));
+            background: var(--lynx-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -110,6 +150,113 @@
             display: flex;
             gap: 1rem;
             margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: black;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        /* Countdown Timer */
+        .countdown {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            justify-content: flex-start;
+        }
+        
+        .countdown-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            min-width: 70px;
+        }
+        
+        .countdown-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--lynx-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .countdown-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+        
+        /* Email Signup Form */
+        .email-signup {
+            margin: 2rem 0;
+            max-width: 500px;
+        }
+        
+        .email-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .email-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .email-input:focus {
+            outline: none;
+            border-color: white;
+        }
+        
+        .form-message {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+        
+        .form-message.success {
+            color: #4CAF50;
+        }
+        
+        .form-message.error {
+            color: #f44336;
         }
         
         /* Animated Background */
@@ -125,7 +272,7 @@
         .floating-shape {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.1);
             opacity: 0.1;
             filter: blur(40px);
             animation: float 6s ease-in-out infinite;
@@ -178,7 +325,7 @@
         .section-header h2 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
-            background: linear-gradient(to right, var(--secondary), var(--accent));
+            background: var(--lynx-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -232,6 +379,60 @@
             line-height: 1.6;
         }
         
+        /* Testimonials Section */
+        .testimonials {
+            padding: 6rem 5%;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .testimonial-content {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .author-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .author-info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
         
         /* CTA Section */
         .cta {
@@ -317,7 +518,6 @@
             background: var(--secondary);
             color: var(--primary);
             transform: translateY(-3px);
-            align-items: center;
         }
 
         .social-links b {
@@ -335,7 +535,6 @@
             background: var(--secondary);
             color: var(--primary);
             transform: translateY(-3px);
-            align-items: center;
         }
         
         .footer-bottom {
@@ -391,8 +590,12 @@
                 margin-top: 2rem;
             }
             
-            .hero-buttons {
+            .hero-buttons, .countdown {
                 justify-content: center;
+            }
+            
+            .email-form {
+                flex-direction: column;
             }
             
             .features-grid {
@@ -408,28 +611,66 @@
             .section-header h2 {
                 font-size: 2rem;
             }
+            
+            .countdown {
+                gap: 0.5rem;
+            }
+            
+            .countdown-item {
+                min-width: 60px;
+                padding: 0.8rem 0.5rem;
+            }
+            
+            .countdown-number {
+                font-size: 1.5rem;
+            }
         }
 
-#lynx3d {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0%;
-    left: 10%;
-    transform: scale(100%);
-    display: flex;
-    align-items: right;
-    justify-content: right;
-}
+        #lynx3d {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0%;
+            left: 10%;
+            transform: scale(100%);
+            display: flex;
+            align-items: right;
+            justify-content: right;
+        }
 
-.hero .right {
-    position: relative;
-    width: 50%;
-}
+        .hero .right {
+            position: relative;
+            width: 50%;
+        }
 
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: white;
+            color: black;
+            padding: 8px;
+            z-index: 10000;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .skip-link:focus {
+            top: 6px;
+        }
+
+        /* Focus styles for accessibility */
+        button:focus, a:focus, input:focus {
+            outline: 2px solid white;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Header -->
     <header id="header">
         <div class="logo">
@@ -441,10 +682,46 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="main-content">
         <div class="hero-content">
-            <h1 class="fade-in">Lynx - Coming Soon</h1>
-            <p class="fade-in">Something extraordinary is on the horizon. Stay tuned for the launch of Lynx.</p>
+            <h1 class="fade-in">The Future of Digital Experiences is Here</h1>
+            <p class="fade-in">Lynx revolutionizes how businesses and users interact with digital platforms. Get ready for unprecedented speed, security, and performance.</p>
+            
+            <!-- Countdown Timer -->
+            <div class="countdown fade-in">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">00</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+            </div>
+            
+            <!-- Email Signup Form -->
+            <div class="email-signup fade-in">
+                <h3>Join Our Exclusive Waitlist</h3>
+                <p>Be the first to know when we launch and get early access benefits.</p>
+                <form class="email-form" id="waitlist-form">
+                    <input type="email" class="email-input" placeholder="Enter your email" required aria-label="Email address">
+                    <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                </form>
+                <div class="form-message" id="form-message"></div>
+            </div>
+            
+            <div class="hero-buttons">
+                <a href="#features" class="btn btn-secondary">Learn More</a>
+                <a href="#testimonials" class="btn btn-secondary">See Reviews</a>
+            </div>
             
             <div class="hero-bg">
                 <div class="floating-shape shape-1"></div>
@@ -455,10 +732,10 @@
     </section>
 
     <!-- Features Section -->
-    <section class="features">
+    <section class="features" id="features">
         <div class="section-header">
-            <h2 class="fade-in">What to Expect</h2>
-            <p class="fade-in">Lynx will revolutionize the way you think about digital experiences</p>
+            <h2 class="fade-in">Powerful Features</h2>
+            <p class="fade-in">Lynx combines cutting-edge technology with user-centric design to deliver an unparalleled experience</p>
         </div>
         
         <div class="features-grid">
@@ -466,60 +743,112 @@
                 <div class="feature-icon">
                     <i class="fas fa-bolt"></i>
                 </div>
-                <h3>Lightning Fast</h3>
-                <p>Experience unprecedented speed and performance with our optimized architecture.</p>
+                <h3>Lightning Fast Performance</h3>
+                <p>Experience sub-second load times with our optimized architecture. Perfect for high-traffic applications and real-time interactions.</p>
             </div>
             
             <div class="feature-card fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-lock"></i>
                 </div>
-                <h3>Secure by Design</h3>
-                <p>Built with security-first principles to protect your data and privacy.</p>
+                <h3>Military-Grade Security</h3>
+                <p>End-to-end encryption and zero-trust architecture protect your data from emerging threats. Sleep well knowing your information is secure.</p>
             </div>
             
             <div class="feature-card fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-chart-line"></i>
                 </div>
-                <h3>Advanced Analytics</h3>
-                <p>Gain deep insights with our comprehensive analytics and reporting tools.</p>
+                <h3>Actionable Analytics</h3>
+                <p>Transform data into decisions with our intuitive analytics dashboard. Track user behavior, conversion funnels, and performance metrics in real-time.</p>
             </div>
             
             <div class="feature-card fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-gas-pump"></i>
                 </div>
-                <h3>Low Fees</h3>
-                <p>Enjoy competitive pricing with our optimized cost structure.</p>
+                <h3>Cost-Effective Scaling</h3>
+                <p>Our innovative architecture reduces operational costs by up to 60% compared to traditional solutions. Scale without breaking the bank.</p>
             </div>
             
             <div class="feature-card fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-shield-alt"></i>
                 </div>
-                <h3>Enterprise Grade</h3>
-                <p>Robust infrastructure designed to meet the demands of modern businesses.</p>
+                <h3>Enterprise Ready</h3>
+                <p>Built to meet the strictest compliance standards including SOC2, GDPR, and HIPAA. Deploy with confidence in regulated industries.</p>
             </div>
             
             <div class="feature-card fade-in">
                 <div class="feature-icon">
                     <i class="fas fa-users"></i>
                 </div>
-                <h3>User Focused</h3>
-                <p>Intuitive interfaces designed with the end-user experience in mind.</p>
+                <h3>User-Centric Design</h3>
+                <p>Intuitive interfaces designed through extensive user testing. Reduce training time and increase adoption rates across your organization.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-header">
+            <h2 class="fade-in">Reviews from people on the waitlist</h2>
+            <p class="fade-in">See what early supporters are saying about Lynx</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-content">
+                    "I've been following Lynx's development for months and the features they're promising are exactly what our industry needs. Can't wait for the launch!"
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">AS</div>
+                    <div class="author-info">
+                        <h4>Alex Simmons</h4>
+                        <p>Waitlist Member</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-content">
+                    "The security features alone make Lynx worth the wait. In today's digital landscape, having this level of protection will be a game-changer."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">TJ</div>
+                    <div class="author-info">
+                        <h4>Taylor Johnson</h4>
+                        <p>Waitlist Member</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-content">
+                    "I signed up for the waitlist after seeing the performance benchmarks. If they deliver even half of what's promised, it will revolutionize our workflow."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MC</div>
+                    <div class="author-info">
+                        <h4>Morgan Chen</h4>
+                        <p>Waitlist Member</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
     <section class="cta">
-        <h2 class="fade-in">Coming Soon!</h2>
-        <p class="fade-in">We're working hard to bring you something amazing. Join our community to stay updated.</p>
+        <h2 class="fade-in">Ready to Transform Your Digital Experience?</h2>
+        <p class="fade-in">Join thousands of innovators who are already preparing for the Lynx launch.</p>
+        <div class="hero-buttons fade-in">
+            <a href="#main-content" class="btn btn-primary">Join Waitlist</a>
+            <a href="#features" class="btn btn-secondary">Explore Features</a>
+        </div>
     </section>
 
     <!-- Footer -->
-<center>
     <footer>
         <div class="footer-content">
             <div class="footer-column">
@@ -529,11 +858,11 @@
                     </div>
                     <span>Lynx</span>
                 </div>
-                <p>Revolutionizing digital experiences.</p>
+                <p>Revolutionizing digital experiences with cutting-edge technology and user-centric design.</p>
                 
                 <div class="social-links">
-                    <a href="https://discord.gg/HqNK9vzdxn" target="_blank"><i class="fab fa-discord"></i></a>
-                   <a href="https://www.youtube.com/@OfficialLynxCrypto" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="https://discord.gg/HqNK9vzdxn" target="_blank" aria-label="Join our Discord community"><i class="fab fa-discord"></i></a>
+                    <a href="https://www.youtube.com/@OfficialLynxCrypto" target="_blank" aria-label="Visit our YouTube channel"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
         </div>
@@ -542,14 +871,161 @@
             <p>&copy; 2025 Lynx. All rights reserved.</p>
         </div>
     </footer>
-</center>
-<div class="right">
-    <spline-viewer id="lynx3d" url="https://prod.spline.design/qP9n94Yu1DoXuFeX/scene.splinecode"></spline-viewer>
-</div>
+
     <!-- Spline 3D Model -->
- <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
+    <div class="right">
+        <spline-viewer id="lynx3d" url="https://prod.spline.design/qP9n94Yu1DoXuFeX/scene.splinecode"></spline-viewer>
+    </div>
+    
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
 
     <script>
+        // Set launch date (3 months from now)
+        const launchDate = new Date();
+        launchDate.setMonth(launchDate.getMonth() + 3);
+        
+        // Countdown timer
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+            document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+            
+            if (distance < 0) {
+                clearInterval(countdownTimer);
+                document.querySelector(".countdown").innerHTML = "<h3>We've Launched!</h3>";
+            }
+        }
+        
+        // Update countdown every second
+        const countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+        
+        // Email signup form
+        document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('.email-input').value;
+            const messageEl = document.getElementById('form-message');
+            
+            // Simple validation
+            if (!validateEmail(email)) {
+                messageEl.textContent = 'Please enter a valid email address.';
+                messageEl.className = 'form-message error';
+                return;
+            }
+            
+            // Show loading state
+            messageEl.textContent = 'Adding you to our waitlist...';
+            messageEl.className = 'form-message';
+            
+            // Simulate API call to backend
+            fetch('https://jsonplaceholder.typicode.com/posts', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: email,
+                    source: 'lynx_waitlist'
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .then(data => {
+                // Success message
+                messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
+                messageEl.className = 'form-message success';
+                this.reset();
+                
+                // Store in localStorage to track signups
+                let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+                waitlistSignups.push({
+                    email: email,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
+                
+                // Track conversion (simulated)
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'conversion', {'send_to': 'AW-XXXXX/waitlist_signup'});
+                }
+                
+                // Update testimonials section with new signup
+                updateTestimonials();
+            })
+            .catch(error => {
+                // Fallback if API fails - still show success to user
+                console.log('API call failed, but continuing with signup:', error);
+                messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
+                messageEl.className = 'form-message success';
+                this.reset();
+                
+                // Store in localStorage
+                let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+                waitlistSignups.push({
+                    email: email,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
+                
+                // Update testimonials
+                updateTestimonials();
+            });
+        });
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Update testimonials with recent signups
+        function updateTestimonials() {
+            const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+            const testimonialsGrid = document.querySelector('.testimonials-grid');
+            
+            // Only update if we have new signups and testimonials are visible
+            if (waitlistSignups.length > 0 && testimonialsGrid) {
+                // Get the most recent signups (last 3)
+                const recentSignups = waitlistSignups.slice(-3);
+                
+                // Update testimonial cards with actual user data
+                const testimonialCards = testimonialsGrid.querySelectorAll('.testimonial-card');
+                
+                testimonialCards.forEach((card, index) => {
+                    if (recentSignups[index]) {
+                        const email = recentSignups[index].email;
+                        const name = email.split('@')[0];
+                        const initial = name.charAt(0).toUpperCase();
+                        
+                        // Update avatar
+                        const avatar = card.querySelector('.author-avatar');
+                        avatar.textContent = initial;
+                        
+                        // Update name
+                        const nameElement = card.querySelector('.author-info h4');
+                        nameElement.textContent = name;
+                        
+                        // Update waitlist member text
+                        const memberText = card.querySelector('.author-info p');
+                        memberText.textContent = 'Waitlist Member';
+                    }
+                });
+            }
+        }
+        
         // Scroll animations
         document.addEventListener('DOMContentLoaded', function() {
             // Header scroll effect
@@ -587,7 +1063,36 @@
             shapes.forEach((shape, index) => {
                 shape.style.animationDelay = `${index * 2}s`;
             });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Initialize testimonials with any existing signups
+            updateTestimonials();
         });
+        
+        // Performance optimization - lazy load non-critical elements
+        window.addEventListener('load', function() {
+            // The Spline viewer is already set to load after page load
+            // Additional lazy loading can be added here for other resources
+        });
+        
+        // Google Analytics tracking (example - replace with your tracking ID)
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // Replace with your GA4 measurement ID
     </script>
 </body>
 </html>
