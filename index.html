@@ -56,6 +56,25 @@
             font-size: 1.5rem;
         }
         
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        
+        .star {
+            font-size: 2rem;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: gold;
+        }
+        
         .review-textarea {
             width: 100%;
             height: 150px;
@@ -78,6 +97,149 @@
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
+        }
+        
+        /* Updated Reviews Section */
+        .reviews-section {
+            padding: 6rem 5%;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .reviews-header h2 {
+            font-size: 2.5rem;
+            background: var(--lynx-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .reviews-stats {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .average-rating {
+            text-align: center;
+        }
+        
+        .rating-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+            justify-content: center;
+        }
+        
+        .rating-stars .star {
+            font-size: 1.2rem;
+            color: gold;
+        }
+        
+        .total-reviews {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .review-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .author-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .author-info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .review-rating {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .review-rating .star {
+            font-size: 1rem;
+            color: gold;
+        }
+        
+        .review-content-text {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .review-date {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.6);
+            grid-column: 1 / -1;
         }
         
         .dot-grid {
@@ -626,6 +788,11 @@
             .hero-bg {
                 width: 50%;
             }
+            
+            .reviews-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
         
         @media (max-width: 768px) {
@@ -665,6 +832,16 @@
             .review-content {
                 width: 95%;
                 padding: 1.5rem;
+            }
+            
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .reviews-stats {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
             }
         }
         
@@ -740,11 +917,20 @@
     <!-- Review Popup -->
     <div class="review-popup" id="review-popup">
         <div class="review-content">
-            <h3>Leave a Review?</h3>
+            <h3>Leave a Review</h3>
             <p>We'd love to hear your thoughts about Lynx!</p>
+            
+            <div class="star-rating" id="star-rating">
+                <span class="star" data-rating="1">★</span>
+                <span class="star" data-rating="2">★</span>
+                <span class="star" data-rating="3">★</span>
+                <span class="star" data-rating="4">★</span>
+                <span class="star" data-rating="5">★</span>
+            </div>
+            
             <textarea class="review-textarea" id="review-text" placeholder="Share your feedback here..."></textarea>
             <div class="review-buttons">
-                <button class="btn btn-secondary" id="review-no">No, Thanks</button>
+                <button class="btn btn-secondary" id="review-no">Cancel</button>
                 <button class="btn btn-primary" id="review-yes">Submit Review</button>
             </div>
         </div>
@@ -802,7 +988,7 @@
             
             <div class="hero-buttons">
                 <a href="#features" class="btn btn-secondary">Learn More</a>
-                <a href="#testimonials" class="btn btn-secondary">See Reviews</a>
+                <a href="#reviews" class="btn btn-secondary">See Reviews</a>
             </div>
             
             <div class="hero-bg">
@@ -871,10 +1057,38 @@
         </div>
     </section>
 
+    <!-- Reviews Section -->
+    <section class="reviews-section" id="reviews">
+        <div class="reviews-header">
+            <h2 class="fade-in">Customer Reviews</h2>
+            <div class="reviews-stats fade-in">
+                <div class="average-rating">
+                    <div class="rating-value" id="average-rating">0.0</div>
+                    <div class="rating-stars" id="average-stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <div class="total-reviews" id="total-reviews">0 Reviews</div>
+                </div>
+                <button class="btn btn-primary" id="write-review-btn">Write a Review</button>
+            </div>
+        </div>
+        
+        <div class="reviews-grid" id="reviews-container">
+            <!-- Reviews will be dynamically inserted here -->
+            <div class="no-reviews" id="no-reviews">
+                <p>No reviews yet. Be the first to share your experience!</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Testimonials Section -->
     <section class="testimonials" id="testimonials">
         <div class="section-header">
-            <h2 class="fade-in">Reviews from people on the waitlist</h2>
+            <h2 class="fade-in">Testimonials</h2>
             <p class="fade-in">See what early supporters are saying about Lynx</p>
         </div>
         
@@ -884,7 +1098,7 @@
                     "I've been following Lynx's development for months and the features they're promising are exactly what our industry needs. Can't wait for the launch!"
                 </div>
                 <div class="testimonial-author">
-                    <div class="author-avatar">AS</div>
+                    <div class="author-avatar">PP</div>
                     <div class="author-info">
                         <h4>Pranav Pagitharan</h4>
                         <p>Waitlist Member</p>
@@ -897,7 +1111,7 @@
                     "The security features alone make Lynx worth the wait. In today's digital landscape, having this level of protection will be a game-changer."
                 </div>
                 <div class="testimonial-author">
-                    <div class="author-avatar">TJ</div>
+                    <div class="author-avatar">HBS</div>
                     <div class="author-info">
                         <h4>Harnoor Bhangu Singh</h4>
                         <p>Waitlist Member</p>
@@ -910,7 +1124,7 @@
                     "I signed up for the waitlist after seeing the performance benchmarks. If they deliver even half of what's promised, it will revolutionize our workflow."
                 </div>
                 <div class="testimonial-author">
-                    <div class="author-avatar">MC</div>
+                    <div class="author-avatar">SY</div>
                     <div class="author-info">
                         <h4>Salar Yousif</h4>
                         <p>Waitlist Member</p>
@@ -1025,7 +1239,7 @@
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            // Send email to riseanisasigma@outlook.com
+            // Send email to sssean.kk@gmail.com
             sendWaitlistEmail(email);
             
             // Simulate API call to backend
@@ -1096,31 +1310,9 @@
         
         // Function to send waitlist email
         function sendWaitlistEmail(email) {
-            // Using EmailJS to send the email
-            // You'll need to set up an account at https://www.emailjs.com/
-            // and replace the service ID, template ID, and user ID with your own
-            
-            // This is a placeholder implementation
-            // In a real implementation, you would use a service like EmailJS, SendGrid, or your own backend
-            
             console.log(`Sending waitlist email for: ${email} to sssean.kk@gmail.com`);
             
-            // Example using EmailJS (commented out as it requires setup)
-            /*
-            emailjs.send('your_service_id', 'your_template_id', {
-                to_email: 'riseanisasigma@outlook.com',
-                from_email: email,
-                message: `New waitlist signup: ${email}`
-            }, 'your_user_id')
-            .then(function(response) {
-                console.log('Email sent successfully', response);
-            }, function(error) {
-                console.log('Failed to send email', error);
-            });
-            */
-            
-            // Alternative: Use a simple mailto link (less reliable)
-            // This will open the user's default email client
+            // Using a mailto link as a simple solution
             const subject = 'New Lynx Waitlist Signup';
             const body = `A new user has joined the Lynx waitlist: ${email}`;
             const mailtoLink = `mailto:sssean.kk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -1135,12 +1327,12 @@
         }
         
         // Function to send review email
-        function sendReviewEmail(review) {
-            console.log(`Sending review: ${review} to sssean.kk@gmail.com`);
+        function sendReviewEmail(review, rating, userEmail = 'Anonymous') {
+            console.log(`Sending review: ${review} with rating ${rating} to sssean.kk@gmail.com`);
             
             // Using a mailto link as a simple solution
-            const subject = 'New Lynx Review';
-            const body = `A user has submitted a review for Lynx:\n\n${review}`;
+            const subject = `New Lynx Review - ${rating} Stars`;
+            const body = `A user has submitted a review for Lynx:\n\nRating: ${rating}/5\nReview: ${review}\n\nUser: ${userEmail}`;
             const mailtoLink = `mailto:sssean.kk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
             
             // Create a temporary link and click it
@@ -1152,16 +1344,194 @@
             document.body.removeChild(tempLink);
         }
         
+        // Review system functionality
+        let currentRating = 0;
+        
+        // Initialize reviews from localStorage
+        function initializeReviews() {
+            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+        }
+        
+        // Render reviews to the page
+        function renderReviews(reviews) {
+            const reviewsContainer = document.getElementById('reviews-container');
+            const noReviews = document.getElementById('no-reviews');
+            
+            // Clear the container
+            reviewsContainer.innerHTML = '';
+            
+            if (reviews.length === 0) {
+                noReviews.style.display = 'block';
+                reviewsContainer.appendChild(noReviews);
+                return;
+            }
+            
+            noReviews.style.display = 'none';
+            
+            // Sort reviews by date (newest first)
+            reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Create review cards
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card fade-in';
+                
+                const date = new Date(review.date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                // Generate star rating HTML
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<span class="star ${i <= review.rating ? 'active' : ''}">★</span>`;
+                }
+                
+                reviewCard.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-author">
+                            <div class="author-avatar">${review.user.charAt(0).toUpperCase()}</div>
+                            <div class="author-info">
+                                <h4>${review.user}</h4>
+                                <p>Verified User</p>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            ${starsHtml}
+                        </div>
+                    </div>
+                    <div class="review-content-text">
+                        ${review.text}
+                    </div>
+                    <div class="review-date">
+                        ${formattedDate}
+                    </div>
+                `;
+                
+                reviewsContainer.appendChild(reviewCard);
+            });
+            
+            // Trigger fade-in animation for new reviews
+            setTimeout(() => {
+                const fadeElements = reviewsContainer.querySelectorAll('.fade-in');
+                fadeElements.forEach(element => {
+                    element.classList.add('visible');
+                });
+            }, 100);
+        }
+        
+        // Update review statistics
+        function updateReviewStats(reviews) {
+            const totalReviews = reviews.length;
+            const averageRating = totalReviews > 0 
+                ? (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1)
+                : 0;
+            
+            document.getElementById('total-reviews').textContent = `${totalReviews} Review${totalReviews !== 1 ? 's' : ''}`;
+            document.getElementById('average-rating').textContent = averageRating;
+            
+            // Update average stars
+            const averageStars = document.getElementById('average-stars');
+            averageStars.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.textContent = '★';
+                if (i <= Math.floor(averageRating)) {
+                    star.style.color = 'gold';
+                } else if (i === Math.ceil(averageRating) && averageRating % 1 >= 0.5) {
+                    star.style.color = 'gold';
+                    star.style.opacity = '0.7';
+                }
+                averageStars.appendChild(star);
+            }
+        }
+        
+        // Save a new review
+        function saveReview(reviewText, rating, userEmail = 'Anonymous') {
+            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+            
+            const newReview = {
+                id: Date.now().toString(),
+                text: reviewText,
+                rating: rating,
+                user: userEmail,
+                date: new Date().toISOString()
+            };
+            
+            reviews.push(newReview);
+            localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+            
+            // Update the UI
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+            
+            // Send email notification
+            sendReviewEmail(reviewText, rating, userEmail);
+            
+            return newReview;
+        }
+        
+        // Star rating functionality
+        function initializeStarRating() {
+            const stars = document.querySelectorAll('#star-rating .star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    setRating(rating);
+                });
+                
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    highlightStars(rating);
+                });
+            });
+            
+            document.getElementById('star-rating').addEventListener('mouseleave', function() {
+                highlightStars(currentRating);
+            });
+        }
+        
+        function setRating(rating) {
+            currentRating = rating;
+            highlightStars(rating);
+        }
+        
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('#star-rating .star');
+            
+            stars.forEach(star => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                
+                if (starRating <= rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
         // Review popup functionality
         function showReviewPopup() {
             const reviewPopup = document.getElementById('review-popup');
             reviewPopup.classList.add('active');
+            
+            // Reset form
+            document.getElementById('review-text').value = '';
+            setRating(0);
         }
         
         function hideReviewPopup() {
             const reviewPopup = document.getElementById('review-popup');
             reviewPopup.classList.remove('active');
             document.getElementById('review-text').value = '';
+            setRating(0);
         }
         
         // Add event listeners for review popup
@@ -1169,9 +1539,18 @@
         document.getElementById('review-yes').addEventListener('click', function() {
             const reviewText = document.getElementById('review-text').value.trim();
             
+            if (currentRating === 0) {
+                alert('Please select a star rating before submitting.');
+                return;
+            }
+            
             if (reviewText) {
-                // Send the review via email
-                sendReviewEmail(reviewText);
+                // Get user email if available
+                const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+                const userEmail = waitlistSignups.length > 0 ? waitlistSignups[waitlistSignups.length - 1].email : 'Anonymous';
+                
+                // Save the review
+                saveReview(reviewText, currentRating, userEmail);
                 
                 // Show confirmation message
                 alert('Thank you for your review!');
@@ -1182,6 +1561,9 @@
                 alert('Please write a review before submitting.');
             }
         });
+        
+        // Write review button
+        document.getElementById('write-review-btn').addEventListener('click', showReviewPopup);
         
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1275,6 +1657,10 @@
                 });
             });
             
+            // Initialize reviews system
+            initializeReviews();
+            initializeStarRating();
+            
             // Initialize testimonials with any existing signups
             updateTestimonials();
         });
@@ -1293,6 +1679,3 @@
     </script>
 </body>
 </html>
-
-
-
