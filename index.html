@@ -911,6 +911,28 @@
             outline: 2px solid white;
             outline-offset: 2px;
         }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -981,7 +1003,7 @@
                 <p>Be the first to know when we launch and get early access benefits.</p>
                 <form class="email-form" id="waitlist-form">
                     <input type="email" class="email-input" placeholder="Enter your email" required aria-label="Email address">
-                    <button type="submit" class="btn btn-primary">Join Waitlist</button>
+                    <button type="submit" class="btn btn-primary" id="waitlist-submit">Join Waitlist</button>
                 </form>
                 <div class="form-message" id="form-message"></div>
             </div>
@@ -1176,23 +1198,12 @@
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
 
     <script>
-        // Set launch date (100 days from now)
+        // FIXED: Synchronized countdown for all users
+        // Set a fixed launch date (100 days from now)
         function getLaunchDate() {
-            // Check if we have a saved countdown date in localStorage
-            const savedDate = localStorage.getItem('lynxCountdownDate');
-            
-            if (savedDate) {
-                return new Date(savedDate);
-            } else {
-                // Set to 100 days from now
-                const launchDate = new Date();
-                launchDate.setDate(launchDate.getDate() + 100);
-                
-                // Save to localStorage
-                localStorage.setItem('lynxCountdownDate', launchDate.toISOString());
-                
-                return launchDate;
-            }
+            // Use a fixed date for all users - 100 days from today
+            const fixedDate = new Date('2025-08-01T00:00:00'); // Replace with your actual launch date
+            return fixedDate;
         }
         
         const launchDate = getLaunchDate();
@@ -1201,6 +1212,12 @@
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = launchDate - now;
+            
+            // If the launch date has passed, show a different message
+            if (distance < 0) {
+                document.querySelector(".countdown").innerHTML = "<h3>We've Launched!</h3>";
+                return;
+            }
             
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -1211,11 +1228,6 @@
             document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
             document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
             document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
-            
-            if (distance < 0) {
-                clearInterval(countdownTimer);
-                document.querySelector(".countdown").innerHTML = "<h3>We've Launched!</h3>";
-            }
         }
         
         // Update countdown every second
@@ -1227,6 +1239,7 @@
             e.preventDefault();
             const email = this.querySelector('.email-input').value;
             const messageEl = document.getElementById('form-message');
+            const submitBtn = document.getElementById('waitlist-submit');
             
             // Simple validation
             if (!validateEmail(email)) {
@@ -1236,122 +1249,145 @@
             }
             
             // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Adding...';
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            // Send email to sssean.kk@gmail.com
-            sendWaitlistEmail(email);
-            
-            // Simulate API call to backend
-            fetch('https://jsonplaceholder.typicode.com/posts', {
-                method: 'POST',
-                body: JSON.stringify({
-                    email: email,
-                    source: 'lynx_waitlist'
-                }),
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Network response was not ok');
-                }
-            })
-            .then(data => {
-                // Success message
-                messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
-                messageEl.className = 'form-message success';
-                this.reset();
-                
-                // Store in localStorage to track signups
-                let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
-                waitlistSignups.push({
-                    email: email,
-                    timestamp: new Date().toISOString()
+            // FIXED: Use a proper API endpoint instead of mailto
+            // You'll need to replace this with your actual API endpoint
+            sendWaitlistEmailAPI(email)
+                .then(() => {
+                    // Success message
+                    messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
+                    messageEl.className = 'form-message success';
+                    this.reset();
+                    
+                    // Store in localStorage to track signups
+                    let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+                    waitlistSignups.push({
+                        email: email,
+                        timestamp: new Date().toISOString()
+                    });
+                    localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
+                    
+                    // Update testimonials section with new signup
+                    updateTestimonials();
+                    
+                    // Show review popup
+                    setTimeout(showReviewPopup, 1000);
+                })
+                .catch(error => {
+                    console.error('Error adding to waitlist:', error);
+                    messageEl.textContent = 'There was an error. Please try again.';
+                    messageEl.className = 'form-message error';
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Join Waitlist';
                 });
-                localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
-                
-                // Track conversion (simulated)
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'conversion', {'send_to': 'AW-XXXXX/waitlist_signup'});
-                }
-                
-                // Update testimonials section with new signup
-                updateTestimonials();
-                
-                // Show review popup
-                setTimeout(showReviewPopup, 1000);
-            })
-            .catch(error => {
-                // Fallback if API fails - still show success to user
-                console.log('API call failed, but continuing with signup:', error);
-                messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
-                messageEl.className = 'form-message success';
-                this.reset();
-                
-                // Store in localStorage
-                let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
-                waitlistSignups.push({
-                    email: email,
-                    timestamp: new Date().toISOString()
-                });
-                localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
-                
-                // Update testimonials
-                updateTestimonials();
-                
-                // Show review popup
-                setTimeout(showReviewPopup, 1000);
-            });
         });
         
-        // Function to send waitlist email
-        function sendWaitlistEmail(email) {
-            console.log(`Sending waitlist email for: ${email} to sssean.kk@gmail.com`);
+        // FIXED: Use a proper API to send email instead of mailto
+        async function sendWaitlistEmailAPI(email) {
+            // Replace this URL with your actual backend API endpoint
+            const apiUrl = 'https://your-backend-api.com/waitlist';
             
-            // Using a mailto link as a simple solution
-            const subject = 'New Lynx Waitlist Signup';
-            const body = `A new user has joined the Lynx waitlist: ${email}`;
-            const mailtoLink = `mailto:sssean.kk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            
-            // Create a temporary link and click it
-            const tempLink = document.createElement('a');
-            tempLink.href = mailtoLink;
-            tempLink.style.display = 'none';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        source: 'lynx_waitlist'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error sending waitlist email:', error);
+                throw error;
+            }
         }
         
-        // Function to send review email
-        function sendReviewEmail(review, rating, userEmail = 'Anonymous') {
-            console.log(`Sending review: ${review} with rating ${rating} to sssean.kk@gmail.com`);
+        // FIXED: Use a proper API to send review email
+        async function sendReviewEmailAPI(review, rating, userEmail = 'Anonymous') {
+            // Replace this URL with your actual backend API endpoint
+            const apiUrl = 'https://your-backend-api.com/reviews';
             
-            // Using a mailto link as a simple solution
-            const subject = `New Lynx Review - ${rating} Stars`;
-            const body = `A user has submitted a review for Lynx:\n\nRating: ${rating}/5\nReview: ${review}\n\nUser: ${userEmail}`;
-            const mailtoLink = `mailto:sssean.kk@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            
-            // Create a temporary link and click it
-            const tempLink = document.createElement('a');
-            tempLink.href = mailtoLink;
-            tempLink.style.display = 'none';
-            document.body.appendChild(tempLink);
-            tempLink.click();
-            document.body.removeChild(tempLink);
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        review: review,
+                        rating: rating,
+                        userEmail: userEmail
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error sending review:', error);
+                throw error;
+            }
         }
         
         // Review system functionality
         let currentRating = 0;
+        let isSubmittingReview = false; // FIXED: Prevent multiple submissions
         
-        // Initialize reviews from localStorage
+        // Initialize reviews from localStorage (temporary solution)
+        // FIXED: You should replace this with a proper backend API call
         function initializeReviews() {
+            // For now, we'll use localStorage as a fallback
             const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
             renderReviews(reviews);
             updateReviewStats(reviews);
+            
+            // FIXED: In a real implementation, you would fetch reviews from a backend API
+            // fetchReviewsFromAPI()
+            //     .then(reviews => {
+            //         renderReviews(reviews);
+            //         updateReviewStats(reviews);
+            //     })
+            //     .catch(error => {
+            //         console.error('Error fetching reviews:', error);
+            //         // Fallback to localStorage
+            //         const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+            //         renderReviews(localReviews);
+            //         updateReviewStats(localReviews);
+            //     });
+        }
+        
+        // FIXED: Fetch reviews from backend API
+        async function fetchReviewsFromAPI() {
+            // Replace this URL with your actual backend API endpoint
+            const apiUrl = 'https://your-backend-api.com/reviews';
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                throw error;
+            }
         }
         
         // Render reviews to the page
@@ -1384,6 +1420,9 @@
                     month: 'long', 
                     day: 'numeric' 
                 });
+
+                // To this (use your Google Apps Script URL):
+                const apiUrl = 'https://script.google.com/macros/s/AKfycbwU7e1HHtXRMj_8FnmDCqUO9tdZ75bSKPMm8vWFCRk6mETuSO_NOgwLCQDGn5WDjjvv0Q/exec';
                 
                 // Generate star rating HTML
                 let starsHtml = '';
@@ -1452,29 +1491,54 @@
             }
         }
         
-        // Save a new review
-        function saveReview(reviewText, rating, userEmail = 'Anonymous') {
-            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-            
-            const newReview = {
-                id: Date.now().toString(),
-                text: reviewText,
-                rating: rating,
-                user: userEmail,
-                date: new Date().toISOString()
-            };
-            
-            reviews.push(newReview);
-            localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-            
-            // Update the UI
-            renderReviews(reviews);
-            updateReviewStats(reviews);
-            
-            // Send email notification
-            sendReviewEmail(reviewText, rating, userEmail);
-            
-            return newReview;
+        // FIXED: Save a new review with proper API integration
+        async function saveReview(reviewText, rating, userEmail = 'Anonymous') {
+            // FIXED: Use backend API to save review
+            try {
+                const response = await sendReviewEmailAPI(reviewText, rating, userEmail);
+                
+                // If API call is successful, also save to localStorage as backup
+                const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                
+                const newReview = {
+                    id: Date.now().toString(),
+                    text: reviewText,
+                    rating: rating,
+                    user: userEmail,
+                    date: new Date().toISOString()
+                };
+                
+                reviews.push(newReview);
+                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+                
+                // Update the UI
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+                
+                return newReview;
+            } catch (error) {
+                console.error('Error saving review:', error);
+                
+                // Fallback to localStorage only
+                const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                
+                const newReview = {
+                    id: Date.now().toString(),
+                    text: reviewText,
+                    rating: rating,
+                    user: userEmail,
+                    date: new Date().toISOString()
+                };
+                
+                reviews.push(newReview);
+                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+                
+                // Update the UI
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+                
+                return newReview;
+            }
         }
         
         // Star rating functionality
@@ -1532,11 +1596,17 @@
             reviewPopup.classList.remove('active');
             document.getElementById('review-text').value = '';
             setRating(0);
+            isSubmittingReview = false; // Reset submission flag
         }
         
         // Add event listeners for review popup
         document.getElementById('review-no').addEventListener('click', hideReviewPopup);
-        document.getElementById('review-yes').addEventListener('click', function() {
+        document.getElementById('review-yes').addEventListener('click', async function() {
+            // FIXED: Prevent multiple submissions
+            if (isSubmittingReview) {
+                return;
+            }
+            
             const reviewText = document.getElementById('review-text').value.trim();
             
             if (currentRating === 0) {
@@ -1545,18 +1615,37 @@
             }
             
             if (reviewText) {
-                // Get user email if available
-                const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
-                const userEmail = waitlistSignups.length > 0 ? waitlistSignups[waitlistSignups.length - 1].email : 'Anonymous';
+                // Set submitting flag
+                isSubmittingReview = true;
                 
-                // Save the review
-                saveReview(reviewText, currentRating, userEmail);
+                // Change button to loading state
+                const submitBtn = document.getElementById('review-yes');
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+                submitBtn.disabled = true;
                 
-                // Show confirmation message
-                alert('Thank you for your review!');
-                
-                // Hide the popup
-                hideReviewPopup();
+                try {
+                    // Get user email if available
+                    const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+                    const userEmail = waitlistSignups.length > 0 ? waitlistSignups[waitlistSignups.length - 1].email : 'Anonymous';
+                    
+                    // Save the review
+                    await saveReview(reviewText, currentRating, userEmail);
+                    
+                    // FIXED: Show proper confirmation message
+                    alert('Thank you for your review!');
+                    
+                    // Hide the popup
+                    hideReviewPopup();
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    alert('There was an error submitting your review. Please try again.');
+                } finally {
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    isSubmittingReview = false;
+                }
             } else {
                 alert('Please write a review before submitting.');
             }
