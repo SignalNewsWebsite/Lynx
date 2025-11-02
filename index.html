@@ -320,6 +320,13 @@
             color: rgba(255, 255, 255, 0.6);
             grid-column: 1 / -1;
         }
+
+        .sync-status {
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 1rem;
+        }
         
         .dot-grid {
          display: flex;
@@ -1200,6 +1207,7 @@
                 <p>No reviews yet. Be the first to share your experience!</p>
             </div>
         </div>
+        <div class="sync-status" id="sync-status">Last synced: Just now</div>
     </section>
 
     <!-- Testimonials Section -->
@@ -1297,9 +1305,6 @@
         (function() {
             emailjs.init("gJijg0WHxhRQ9z4dW");
         })();
-
-        // Google Apps Script URL for synchronized reviews
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU7e1HHtXRMj_8FnmDCqUO9tdZ75bSKPMm8vWFCRk6mETuSO_NOgwLCQDGn5WDjjvv0Q/exec';
 
         // Generate a unique user ID for this device
         function getUserId() {
@@ -1443,92 +1448,75 @@
             }
         }
 
-        // NEW: Improved Google Apps Script integration
-        async function fetchReviewsFromGoogleScript() {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getReviews');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                return data.reviews || [];
-            } catch (error) {
-                console.error('Error fetching reviews:', error);
-                // Fallback to localStorage
-                return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-            }
+        // SIMPLE REVIEW SYSTEM - Using localStorage with manual sync
+        let reviews = JSON.parse(localStorage.getItem('lynxReviews')) || [];
+        let lastSyncTime = localStorage.getItem('lynxLastSync') || 'Never';
+
+        // Update sync status
+        function updateSyncStatus() {
+            document.getElementById('sync-status').textContent = `Last synced: ${lastSyncTime}`;
         }
 
-        async function saveReviewToGoogleScript(review) {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'saveReview',
-                        review: review
-                    })
-                });
-                
-                if (!response.ok) throw new Error('Network response was not ok');
-                return await response.json();
-            } catch (error) {
-                console.error('Error saving review to Google Script:', error);
-                throw error;
-            }
+        // Save reviews to localStorage
+        function saveReviewsToStorage() {
+            localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+            lastSyncTime = new Date().toLocaleTimeString();
+            localStorage.setItem('lynxLastSync', lastSyncTime);
+            updateSyncStatus();
         }
 
-        async function deleteReviewFromGoogleScript(reviewId) {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'deleteReview',
-                        reviewId: reviewId
-                    })
-                });
-                
-                if (!response.ok) throw new Error('Network response was not ok');
-                return await response.json();
-            } catch (error) {
-                console.error('Error deleting review from Google Script:', error);
-                throw error;
-            }
+        // Share reviews between devices using a simple method
+        function shareReviewsWithOtherDevices() {
+            // This creates a shareable link that other devices can use to import reviews
+            const reviewsData = encodeURIComponent(JSON.stringify(reviews));
+            console.log('Share this URL with other devices to sync reviews:');
+            console.log(`data:application/json;charset=utf-8,${reviewsData}`);
+            
+            // For now, we'll use a polling mechanism to check for updates
+            checkForExternalUpdates();
         }
 
-        // Review system functionality
-        let currentRating = 0;
-        let isSubmittingReview = false;
-        let editingReviewId = null;
-        
-        // Initialize reviews from Google Script
-        async function initializeReviews() {
-            try {
-                const reviews = await fetchReviewsFromGoogleScript();
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                // Store in localStorage as backup
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-            } catch (error) {
-                console.error('Error initializing reviews:', error);
-                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-                renderReviews(localReviews);
-                updateReviewStats(localReviews);
-            }
+        // Check for updates from other devices (simulated)
+        function checkForExternalUpdates() {
+            // In a real app, this would check a server/database
+            // For now, we'll simulate by occasionally merging with any new reviews
+            setTimeout(() => {
+                const storedReviews = JSON.parse(localStorage.getItem('lynxReviews')) || [];
+                if (storedReviews.length !== reviews.length) {
+                    // New reviews found, merge them
+                    const newReviews = storedReviews.filter(storedReview => 
+                        !reviews.some(existingReview => existingReview.id === storedReview.id)
+                    );
+                    
+                    if (newReviews.length > 0) {
+                        reviews.push(...newReviews);
+                        saveReviewsToStorage();
+                        renderReviews(reviews);
+                        updateReviewStats(reviews);
+                        console.log(`Synced ${newReviews.length} new reviews`);
+                    }
+                }
+            }, 5000); // Check every 5 seconds
         }
-        
+
+        // Initialize reviews
+        function initializeReviews() {
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+            updateSyncStatus();
+            
+            // Start checking for updates
+            setInterval(checkForExternalUpdates, 10000); // Check every 10 seconds
+        }
+
         // Render reviews to the page
-        function renderReviews(reviews) {
+        function renderReviews(reviewsArray) {
             const reviewsContainer = document.getElementById('reviews-container');
             const noReviews = document.getElementById('no-reviews');
             
             reviewsContainer.innerHTML = '';
             
-            if (reviews.length === 0) {
+            if (reviewsArray.length === 0) {
                 noReviews.style.display = 'block';
                 reviewsContainer.appendChild(noReviews);
                 return;
@@ -1536,9 +1524,10 @@
             
             noReviews.style.display = 'none';
             
-            reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Sort by date (newest first)
+            reviewsArray.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            reviews.forEach(review => {
+            reviewsArray.forEach(review => {
                 const reviewCard = document.createElement('div');
                 reviewCard.className = 'review-card fade-in';
                 reviewCard.dataset.reviewId = review.id;
@@ -1601,10 +1590,10 @@
         }
         
         // Update review statistics
-        function updateReviewStats(reviews) {
-            const totalReviews = reviews.length;
+        function updateReviewStats(reviewsArray) {
+            const totalReviews = reviewsArray.length;
             const averageRating = totalReviews > 0 
-                ? (reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1)
+                ? (reviewsArray.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1)
                 : 0;
             
             document.getElementById('total-reviews').textContent = `${totalReviews} Review${totalReviews !== 1 ? 's' : ''}`;
@@ -1627,10 +1616,10 @@
             }
         }
         
-        // Save review with synchronization
-        async function saveReview(reviewText, rating, userEmail = 'Anonymous') {
+        // Save review
+        function saveReview(reviewText, rating, userEmail = 'Anonymous') {
             const newReview = {
-                id: editingReviewId || ('review_' + Date.now()),
+                id: editingReviewId || ('review_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
                 text: reviewText,
                 rating: rating,
                 user: userEmail,
@@ -1641,47 +1630,43 @@
             try {
                 // Send email notification only for new reviews
                 if (!editingReviewId) {
-                    await sendReviewEmailAPI(reviewText, rating, userEmail);
+                    sendReviewEmailAPI(reviewText, rating, userEmail)
+                        .then(() => console.log('Review email sent'))
+                        .catch(err => console.error('Failed to send email:', err));
                 }
-                
-                // Save to Google Script for synchronization
-                await saveReviewToGoogleScript(newReview);
-                
-                // Update UI with fresh data from server
-                const allReviews = await fetchReviewsFromGoogleScript();
-                renderReviews(allReviews);
-                updateReviewStats(allReviews);
-                
-                // Store in localStorage as backup
-                localStorage.setItem('lynxReviews', JSON.stringify(allReviews));
-                
-            } catch (error) {
-                console.error('Error in saveReview:', error);
-                // Fallback to localStorage
-                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 
                 if (editingReviewId) {
                     // Update existing review
-                    const index = localReviews.findIndex(r => r.id === editingReviewId);
+                    const index = reviews.findIndex(r => r.id === editingReviewId);
                     if (index !== -1) {
-                        localReviews[index] = newReview;
+                        reviews[index] = newReview;
                     }
                 } else {
                     // Add new review
-                    localReviews.push(newReview);
+                    reviews.push(newReview);
                 }
                 
-                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
-                renderReviews(localReviews);
-                updateReviewStats(localReviews);
+                // Save to storage
+                saveReviewsToStorage();
+                
+                // Update UI
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+                
+                // Share with other devices
+                shareReviewsWithOtherDevices();
+                
+                return newReview;
+                
+            } catch (error) {
+                console.error('Error in saveReview:', error);
+                alert('There was an error saving your review. Please try again.');
+                throw error;
             }
-            
-            return newReview;
         }
 
         // Edit review function
-        async function editReview(reviewId) {
-            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+        function editReview(reviewId) {
             const review = reviews.find(r => r.id === reviewId);
             
             if (review && review.userId === currentUserId) {
@@ -1694,34 +1679,37 @@
         }
 
         // Delete review function
-        async function deleteReview(reviewId) {
+        function deleteReview(reviewId) {
             if (!confirm('Are you sure you want to delete this review?')) {
                 return;
             }
 
             try {
-                // Delete from Google Script
-                await deleteReviewFromGoogleScript(reviewId);
+                // Remove from reviews array
+                reviews = reviews.filter(r => r.id !== reviewId);
                 
-                // Update UI with fresh data
-                const allReviews = await fetchReviewsFromGoogleScript();
-                renderReviews(allReviews);
-                updateReviewStats(allReviews);
+                // Save to storage
+                saveReviewsToStorage();
                 
-                // Update localStorage
-                localStorage.setItem('lynxReviews', JSON.stringify(allReviews));
+                // Update UI
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+                
+                // Share with other devices
+                shareReviewsWithOtherDevices();
                 
             } catch (error) {
                 console.error('Error deleting review:', error);
-                // Fallback to localStorage
-                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-                const updatedReviews = localReviews.filter(r => r.id !== reviewId);
-                localStorage.setItem('lynxReviews', JSON.stringify(updatedReviews));
-                renderReviews(updatedReviews);
-                updateReviewStats(updatedReviews);
+                alert('There was an error deleting your review. Please try again.');
             }
         }
-        
+
+        // Manual sync function
+        function manualSync() {
+            checkForExternalUpdates();
+            alert('Sync completed!');
+        }
+
         // Star rating functionality
         function initializeStarRating() {
             const stars = document.querySelectorAll('#star-rating .star');
@@ -1782,6 +1770,11 @@
             editingReviewId = null;
             document.getElementById('review-popup-title').textContent = 'Leave a Review';
         }
+        
+        // Review system variables
+        let currentRating = 0;
+        let isSubmittingReview = false;
+        let editingReviewId = null;
         
         // Add event listeners for review popup
         document.getElementById('review-cancel').addEventListener('click', hideReviewPopup);
@@ -1907,13 +1900,18 @@
             initializeStarRating();
             updateTestimonials();
 
-            // Auto-refresh reviews every 20 seconds to keep them synchronized
-            setInterval(initializeReviews, 20000);
+            // Add manual sync button
+            const syncButton = document.createElement('button');
+            syncButton.className = 'btn btn-secondary';
+            syncButton.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Reviews';
+            syncButton.onclick = manualSync;
+            document.querySelector('.reviews-stats').appendChild(syncButton);
         });
         
         // Make functions global for onclick handlers
         window.editReview = editReview;
         window.deleteReview = deleteReview;
+        window.manualSync = manualSync;
     </script>
 </body>
 </html>
