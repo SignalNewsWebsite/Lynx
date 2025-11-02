@@ -19,7 +19,46 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FFFFFF 0%, #AAAAAA 100%);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #FFFFFF 0%, #888888 100%);
+            transform: scale(1.05);
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #FFFFFF 0%, #666666 100%);
+        }
+
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.6) rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth scrolling for the whole page */
+        html {
+            scroll-behavior: smooth;
+        }
+
         /* Review Popup */
         .review-popup {
             position: fixed;
@@ -424,6 +463,13 @@
             padding: 1rem;
             border-radius: 10px;
             min-width: 70px;
+            transition: all 0.3s ease;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
         }
         
         .countdown-number {
@@ -460,11 +506,15 @@
             background: rgba(255, 255, 255, 0.05);
             color: white;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
-        
+
         .email-input:focus {
             outline: none;
             border-color: white;
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
         }
         
         .form-message {
@@ -933,6 +983,11 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* Smooth transitions for all interactive elements */
+        a, button, .feature-card, .review-card, .testimonial-card, .countdown-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body>
@@ -1198,12 +1253,20 @@
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
 
     <script>
-        // FIXED: Synchronized countdown for all users
-        // Set a fixed launch date (100 days from now)
+        // Initialize EmailJS - YOU NEED TO REPLACE THESE VALUES
+        (function() {
+            // REPLACE THIS WITH YOUR EMAILJS PUBLIC KEY
+            emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+        })();
+
+        // FIXED: 100 Days Countdown
         function getLaunchDate() {
-            // Use a fixed date for all users - 100 days from today
-            const fixedDate = new Date('2025-08-01T00:00:00'); // Replace with your actual launch date
-            return fixedDate;
+            // Set to exactly 100 days from now
+            const now = new Date();
+            const launchDate = new Date(now);
+            launchDate.setDate(now.getDate() + 100);
+            launchDate.setHours(0, 0, 0, 0); // Set to midnight
+            return launchDate;
         }
         
         const launchDate = getLaunchDate();
@@ -1254,8 +1317,7 @@
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            // FIXED: Use a proper API endpoint instead of mailto
-            // You'll need to replace this with your actual API endpoint
+            // Send email using EmailJS with SMTP
             sendWaitlistEmailAPI(email)
                 .then(() => {
                     // Success message
@@ -1289,59 +1351,54 @@
                 });
         });
         
-        // FIXED: Use a proper API to send email instead of mailto
+        // FIXED: EmailJS with SMTP for waitlist
         async function sendWaitlistEmailAPI(email) {
-            // Replace this URL with your actual backend API endpoint
-            const apiUrl = 'https://your-backend-api.com/waitlist';
-            
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        source: 'lynx_waitlist'
-                    })
-                });
+                const templateParams = {
+                    to_email: 'sssean.kk@gmail.com',
+                    user_email: email,
+                    subject: 'New Lynx Waitlist Signup',
+                    message: `New waitlist signup: ${email}\n\nTimestamp: ${new Date().toLocaleString()}`
+                };
+
+                // REPLACE THESE WITH YOUR EMAILJS SERVICE AND TEMPLATE IDs
+                const response = await emailjs.send(
+                    'YOUR_SMTP_SERVICE_ID', // Your SMTP service ID from EmailJS
+                    'YOUR_WAITLIST_TEMPLATE_ID', // Your waitlist template ID
+                    templateParams
+                );
                 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                
-                return await response.json();
+                console.log('Waitlist email sent successfully:', response);
+                return { success: true };
             } catch (error) {
-                console.error('Error sending waitlist email:', error);
+                console.error('EmailJS error:', error);
                 throw error;
             }
         }
         
-        // FIXED: Use a proper API to send review email
+        // FIXED: EmailJS with SMTP for reviews
         async function sendReviewEmailAPI(review, rating, userEmail = 'Anonymous') {
-            // Replace this URL with your actual backend API endpoint
-            const apiUrl = 'https://your-backend-api.com/reviews';
-            
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        review: review,
-                        rating: rating,
-                        userEmail: userEmail
-                    })
-                });
+                const templateParams = {
+                    to_email: 'sssean.kk@gmail.com',
+                    subject: `New Lynx Review - ${rating} Stars`,
+                    rating: rating,
+                    review: review,
+                    user_email: userEmail,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                // REPLACE THESE WITH YOUR EMAILJS SERVICE AND TEMPLATE IDs
+                const response = await emailjs.send(
+                    'YOUR_SMTP_SERVICE_ID', // Your SMTP service ID from EmailJS
+                    'YOUR_REVIEW_TEMPLATE_ID', // Your review template ID
+                    templateParams
+                );
                 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                
-                return await response.json();
+                console.log('Review email sent successfully:', response);
+                return { success: true };
             } catch (error) {
-                console.error('Error sending review:', error);
+                console.error('EmailJS error:', error);
                 throw error;
             }
         }
@@ -1350,44 +1407,11 @@
         let currentRating = 0;
         let isSubmittingReview = false; // FIXED: Prevent multiple submissions
         
-        // Initialize reviews from localStorage (temporary solution)
-        // FIXED: You should replace this with a proper backend API call
+        // Initialize reviews from localStorage
         function initializeReviews() {
-            // For now, we'll use localStorage as a fallback
             const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
             renderReviews(reviews);
             updateReviewStats(reviews);
-            
-            // FIXED: In a real implementation, you would fetch reviews from a backend API
-            // fetchReviewsFromAPI()
-            //     .then(reviews => {
-            //         renderReviews(reviews);
-            //         updateReviewStats(reviews);
-            //     })
-            //     .catch(error => {
-            //         console.error('Error fetching reviews:', error);
-            //         // Fallback to localStorage
-            //         const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-            //         renderReviews(localReviews);
-            //         updateReviewStats(localReviews);
-            //     });
-        }
-        
-        // FIXED: Fetch reviews from backend API
-        async function fetchReviewsFromAPI() {
-            // Replace this URL with your actual backend API endpoint
-            const apiUrl = 'https://your-backend-api.com/reviews';
-            
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching reviews:', error);
-                throw error;
-            }
         }
         
         // Render reviews to the page
@@ -1420,9 +1444,6 @@
                     month: 'long', 
                     day: 'numeric' 
                 });
-
-                // To this (use your Google Apps Script URL):
-                const apiUrl = 'https://script.google.com/macros/s/AKfycbwU7e1HHtXRMj_8FnmDCqUO9tdZ75bSKPMm8vWFCRk6mETuSO_NOgwLCQDGn5WDjjvv0Q/exec';
                 
                 // Generate star rating HTML
                 let starsHtml = '';
@@ -1491,54 +1512,41 @@
             }
         }
         
-        // FIXED: Save a new review with proper API integration
+        // FIXED: Save a new review with proper email notification
         async function saveReview(reviewText, rating, userEmail = 'Anonymous') {
-            // FIXED: Use backend API to save review
+            const newReview = {
+                id: Date.now().toString(),
+                text: reviewText,
+                rating: rating,
+                user: userEmail,
+                date: new Date().toISOString()
+            };
+
             try {
-                const response = await sendReviewEmailAPI(reviewText, rating, userEmail);
+                // Send email notification
+                await sendReviewEmailAPI(reviewText, rating, userEmail);
                 
-                // If API call is successful, also save to localStorage as backup
-                const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                // Save to localStorage
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                localReviews.push(newReview);
+                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
                 
-                const newReview = {
-                    id: Date.now().toString(),
-                    text: reviewText,
-                    rating: rating,
-                    user: userEmail,
-                    date: new Date().toISOString()
-                };
+                // Update UI
+                renderReviews(localReviews);
+                updateReviewStats(localReviews);
                 
-                reviews.push(newReview);
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                
-                // Update the UI
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                return newReview;
             } catch (error) {
-                console.error('Error saving review:', error);
+                console.error('Error sending review email:', error);
+                // Still save locally even if email fails
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                localReviews.push(newReview);
+                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
                 
-                // Fallback to localStorage only
-                const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-                
-                const newReview = {
-                    id: Date.now().toString(),
-                    text: reviewText,
-                    rating: rating,
-                    user: userEmail,
-                    date: new Date().toISOString()
-                };
-                
-                reviews.push(newReview);
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                
-                // Update the UI
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                return newReview;
+                renderReviews(localReviews);
+                updateReviewStats(localReviews);
             }
+            
+            return newReview;
         }
         
         // Star rating functionality
@@ -1633,7 +1641,7 @@
                     await saveReview(reviewText, currentRating, userEmail);
                     
                     // FIXED: Show proper confirmation message
-                    alert('Thank you for your review!');
+                    alert('Thank you for your review! Your feedback has been submitted.');
                     
                     // Hide the popup
                     hideReviewPopup();
@@ -1759,12 +1767,6 @@
             // The Spline viewer is already set to load after page load
             // Additional lazy loading can be added here for other resources
         });
-        
-        // Google Analytics tracking (example - replace with your tracking ID)
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX'); // Replace with your GA4 measurement ID
     </script>
 </body>
 </html>
