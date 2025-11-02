@@ -139,6 +139,43 @@
             gap: 1rem;
             justify-content: flex-end;
         }
+
+        /* Edit/Delete Review Buttons */
+        .review-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .review-actions button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-review-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .edit-review-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .delete-review-btn {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .delete-review-btn:hover {
+            background: rgba(244, 67, 54, 0.3);
+        }
         
         /* Updated Reviews Section */
         .reviews-section {
@@ -211,6 +248,7 @@
             padding: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s;
+            position: relative;
         }
         
         .review-card:hover {
@@ -996,7 +1034,7 @@
     <!-- Review Popup -->
     <div class="review-popup" id="review-popup">
         <div class="review-content">
-            <h3>Leave a Review</h3>
+            <h3 id="review-popup-title">Leave a Review</h3>
             <p>We'd love to hear your thoughts about Lynx!</p>
             
             <div class="star-rating" id="star-rating">
@@ -1009,8 +1047,8 @@
             
             <textarea class="review-textarea" id="review-text" placeholder="Share your feedback here..."></textarea>
             <div class="review-buttons">
-                <button class="btn btn-secondary" id="review-no">Cancel</button>
-                <button class="btn btn-primary" id="review-yes">Submit Review</button>
+                <button class="btn btn-secondary" id="review-cancel">Cancel</button>
+                <button class="btn btn-primary" id="review-submit">Submit Review</button>
             </div>
         </div>
     </div>
@@ -1263,9 +1301,20 @@
         // Google Apps Script URL for synchronized reviews
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU7e1HHtXRMj_8FnmDCqUO9tdZ75bSKPMm8vWFCRk6mETuSO_NOgwLCQDGn5WDjjvv0Q/exec';
 
+        // Generate a unique user ID for this device
+        function getUserId() {
+            let userId = localStorage.getItem('lynxUserId');
+            if (!userId) {
+                userId = 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                localStorage.setItem('lynxUserId', userId);
+            }
+            return userId;
+        }
+
+        const currentUserId = getUserId();
+
         // FIXED: Synchronized countdown for all users - 100 days from now
         function getLaunchDate() {
-            // Set to exactly 100 days from now for all users
             const now = new Date();
             const launchDate = new Date(now);
             launchDate.setDate(now.getDate() + 100);
@@ -1296,7 +1345,6 @@
             document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
         }
         
-        // Update countdown every second
         const countdownTimer = setInterval(updateCountdown, 1000);
         updateCountdown();
 
@@ -1318,7 +1366,6 @@
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            // Send email using EmailJS
             sendWaitlistEmailAPI(email)
                 .then(() => {
                     messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
@@ -1396,13 +1443,13 @@
             }
         }
 
-        // NEW: Synchronized reviews using Google Apps Script
+        // NEW: Improved Google Apps Script integration
         async function fetchReviewsFromGoogleScript() {
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getReviews');
                 if (!response.ok) throw new Error('Network response was not ok');
-                const reviews = await response.json();
-                return reviews;
+                const data = await response.json();
+                return data.reviews || [];
             } catch (error) {
                 console.error('Error fetching reviews:', error);
                 // Fallback to localStorage
@@ -1417,7 +1464,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(review)
+                    body: JSON.stringify({
+                        action: 'saveReview',
+                        review: review
+                    })
                 });
                 
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -1428,9 +1478,31 @@
             }
         }
 
+        async function deleteReviewFromGoogleScript(reviewId) {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'deleteReview',
+                        reviewId: reviewId
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                return await response.json();
+            } catch (error) {
+                console.error('Error deleting review from Google Script:', error);
+                throw error;
+            }
+        }
+
         // Review system functionality
         let currentRating = 0;
         let isSubmittingReview = false;
+        let editingReviewId = null;
         
         // Initialize reviews from Google Script
         async function initializeReviews() {
@@ -1438,6 +1510,9 @@
                 const reviews = await fetchReviewsFromGoogleScript();
                 renderReviews(reviews);
                 updateReviewStats(reviews);
+                
+                // Store in localStorage as backup
+                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
             } catch (error) {
                 console.error('Error initializing reviews:', error);
                 const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
@@ -1466,6 +1541,7 @@
             reviews.forEach(review => {
                 const reviewCard = document.createElement('div');
                 reviewCard.className = 'review-card fade-in';
+                reviewCard.dataset.reviewId = review.id;
                 
                 const date = new Date(review.date);
                 const formattedDate = date.toLocaleDateString('en-US', { 
@@ -1478,6 +1554,9 @@
                 for (let i = 1; i <= 5; i++) {
                     starsHtml += `<span class="star ${i <= review.rating ? 'active' : ''}">★</span>`;
                 }
+                
+                // Check if this review belongs to current user
+                const isOwnReview = review.userId === currentUserId;
                 
                 reviewCard.innerHTML = `
                     <div class="review-header">
@@ -1498,6 +1577,16 @@
                     <div class="review-date">
                         ${formattedDate}
                     </div>
+                    ${isOwnReview ? `
+                    <div class="review-actions">
+                        <button class="edit-review-btn" onclick="editReview('${review.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="delete-review-btn" onclick="deleteReview('${review.id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    ` : ''}
                 `;
                 
                 reviewsContainer.appendChild(reviewCard);
@@ -1541,16 +1630,19 @@
         // Save review with synchronization
         async function saveReview(reviewText, rating, userEmail = 'Anonymous') {
             const newReview = {
-                id: Date.now().toString(),
+                id: editingReviewId || ('review_' + Date.now()),
                 text: reviewText,
                 rating: rating,
                 user: userEmail,
+                userId: currentUserId,
                 date: new Date().toISOString()
             };
 
             try {
-                // Send email notification
-                await sendReviewEmailAPI(reviewText, rating, userEmail);
+                // Send email notification only for new reviews
+                if (!editingReviewId) {
+                    await sendReviewEmailAPI(reviewText, rating, userEmail);
+                }
                 
                 // Save to Google Script for synchronization
                 await saveReviewToGoogleScript(newReview);
@@ -1560,18 +1652,74 @@
                 renderReviews(allReviews);
                 updateReviewStats(allReviews);
                 
+                // Store in localStorage as backup
+                localStorage.setItem('lynxReviews', JSON.stringify(allReviews));
+                
             } catch (error) {
                 console.error('Error in saveReview:', error);
                 // Fallback to localStorage
                 const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-                localReviews.push(newReview);
-                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
                 
+                if (editingReviewId) {
+                    // Update existing review
+                    const index = localReviews.findIndex(r => r.id === editingReviewId);
+                    if (index !== -1) {
+                        localReviews[index] = newReview;
+                    }
+                } else {
+                    // Add new review
+                    localReviews.push(newReview);
+                }
+                
+                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
                 renderReviews(localReviews);
                 updateReviewStats(localReviews);
             }
             
             return newReview;
+        }
+
+        // Edit review function
+        async function editReview(reviewId) {
+            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+            const review = reviews.find(r => r.id === reviewId);
+            
+            if (review && review.userId === currentUserId) {
+                editingReviewId = reviewId;
+                document.getElementById('review-popup-title').textContent = 'Edit Your Review';
+                document.getElementById('review-text').value = review.text;
+                setRating(review.rating);
+                showReviewPopup();
+            }
+        }
+
+        // Delete review function
+        async function deleteReview(reviewId) {
+            if (!confirm('Are you sure you want to delete this review?')) {
+                return;
+            }
+
+            try {
+                // Delete from Google Script
+                await deleteReviewFromGoogleScript(reviewId);
+                
+                // Update UI with fresh data
+                const allReviews = await fetchReviewsFromGoogleScript();
+                renderReviews(allReviews);
+                updateReviewStats(allReviews);
+                
+                // Update localStorage
+                localStorage.setItem('lynxReviews', JSON.stringify(allReviews));
+                
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                // Fallback to localStorage
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                const updatedReviews = localReviews.filter(r => r.id !== reviewId);
+                localStorage.setItem('lynxReviews', JSON.stringify(updatedReviews));
+                renderReviews(updatedReviews);
+                updateReviewStats(updatedReviews);
+            }
         }
         
         // Star rating functionality
@@ -1619,8 +1767,10 @@
             const reviewPopup = document.getElementById('review-popup');
             reviewPopup.classList.add('active');
             
-            document.getElementById('review-text').value = '';
-            setRating(0);
+            if (!editingReviewId) {
+                document.getElementById('review-text').value = '';
+                setRating(0);
+            }
         }
         
         function hideReviewPopup() {
@@ -1629,11 +1779,13 @@
             document.getElementById('review-text').value = '';
             setRating(0);
             isSubmittingReview = false;
+            editingReviewId = null;
+            document.getElementById('review-popup-title').textContent = 'Leave a Review';
         }
         
         // Add event listeners for review popup
-        document.getElementById('review-no').addEventListener('click', hideReviewPopup);
-        document.getElementById('review-yes').addEventListener('click', async function() {
+        document.getElementById('review-cancel').addEventListener('click', hideReviewPopup);
+        document.getElementById('review-submit').addEventListener('click', async function() {
             if (isSubmittingReview) return;
 
             const reviewText = document.getElementById('review-text').value.trim();
@@ -1645,7 +1797,7 @@
 
             if (reviewText) {
                 isSubmittingReview = true;
-                const submitBtn = document.getElementById('review-yes');
+                const submitBtn = document.getElementById('review-submit');
                 const originalText = submitBtn.textContent;
                 submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
                 submitBtn.disabled = true;
@@ -1656,7 +1808,7 @@
                     
                     await saveReview(reviewText, currentRating, userEmail);
                     
-                    alert('Thank you for your review! Your feedback has been submitted and is now visible to everyone.');
+                    alert(editingReviewId ? 'Review updated successfully!' : 'Thank you for your review! Your feedback has been submitted and is now visible to everyone.');
                     hideReviewPopup();
                 } catch (error) {
                     console.error('Error submitting review:', error);
@@ -1755,13 +1907,13 @@
             initializeStarRating();
             updateTestimonials();
 
-            // Auto-refresh reviews every 30 seconds to keep them synchronized
-            setInterval(initializeReviews, 30000);
+            // Auto-refresh reviews every 20 seconds to keep them synchronized
+            setInterval(initializeReviews, 20000);
         });
         
-        window.addEventListener('load', function() {
-            // Additional lazy loading can be added here for other resources
-        });
+        // Make functions global for onclick handlers
+        window.editReview = editReview;
+        window.deleteReview = deleteReview;
     </script>
 </body>
 </html>
