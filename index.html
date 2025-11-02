@@ -1265,15 +1265,15 @@ html {
             emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
         })();
 
-        // FIXED: 100 Days Countdown
-        function getLaunchDate() {
-            // Set to exactly 100 days from now
-            const now = new Date();
-            const launchDate = new Date(now);
-            launchDate.setDate(now.getDate() + 100);
-            launchDate.setHours(0, 0, 0, 0); // Set to midnight
-            return launchDate;
-        }
+// FIXED: 100 Days Countdown
+function getLaunchDate() {
+    // Set to exactly 100 days from now
+    const now = new Date();
+    const launchDate = new Date(now);
+    launchDate.setDate(now.getDate() + 100);
+    launchDate.setHours(0, 0, 0, 0); // Set to midnight
+    return launchDate;
+}
         
         const launchDate = getLaunchDate();
         
@@ -1776,4 +1776,5 @@ html {
     </script>
 </body>
 </html>
+
 
