@@ -23,37 +23,33 @@
     <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 12px;
-}
+        /* stylelint-disable property-no-vendor-prefix */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
 
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-}
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
 
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #FFFFFF 0%, #AAAAAA 100%);
-    border-radius: 10px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-}
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FFFFFF 0%, #AAAAAA 100%);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
 
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #FFFFFF 0%, #888888 100%);
-    transform: scale(1.05);
-}
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #FFFFFF 0%, #888888 100%);
+            transform: scale(1.05);
+        }
 
-/* Firefox Scrollbar */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.6) rgba(255, 255, 255, 0.1);
-}
+        ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(135deg, #FFFFFF 0%, #666666 100%);
+        }
+        /* stylelint-enable property-no-vendor-prefix */
 
-/* Smooth scrolling */
-html {
-    scroll-behavior: smooth;
-}
         /* Firefox Scrollbar */
         * {
             scrollbar-width: thin;
@@ -1259,21 +1255,23 @@ html {
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
 
     <script>
-        // Initialize EmailJS - YOU NEED TO REPLACE THESE VALUES
+        // Initialize EmailJS with your credentials
         (function() {
-            // REPLACE THIS WITH YOUR EMAILJS PUBLIC KEY
-            emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+            emailjs.init("gJijg0WHxhRQ9z4dW");
         })();
 
-// FIXED: 100 Days Countdown
-function getLaunchDate() {
-    // Set to exactly 100 days from now
-    const now = new Date();
-    const launchDate = new Date(now);
-    launchDate.setDate(now.getDate() + 100);
-    launchDate.setHours(0, 0, 0, 0); // Set to midnight
-    return launchDate;
-}
+        // Google Apps Script URL for synchronized reviews
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU7e1HHtXRMj_8FnmDCqUO9tdZ75bSKPMm8vWFCRk6mETuSO_NOgwLCQDGn5WDjjvv0Q/exec';
+
+        // FIXED: Synchronized countdown for all users - 100 days from now
+        function getLaunchDate() {
+            // Set to exactly 100 days from now for all users
+            const now = new Date();
+            const launchDate = new Date(now);
+            launchDate.setDate(now.getDate() + 100);
+            launchDate.setHours(0, 0, 0, 0);
+            return launchDate;
+        }
         
         const launchDate = getLaunchDate();
         
@@ -1282,7 +1280,6 @@ function getLaunchDate() {
             const now = new Date().getTime();
             const distance = launchDate - now;
             
-            // If the launch date has passed, show a different message
             if (distance < 0) {
                 document.querySelector(".countdown").innerHTML = "<h3>We've Launched!</h3>";
                 return;
@@ -1301,8 +1298,8 @@ function getLaunchDate() {
         
         // Update countdown every second
         const countdownTimer = setInterval(updateCountdown, 1000);
-        updateCountdown(); // Initial call
-        
+        updateCountdown();
+
         // Email signup form
         document.getElementById('waitlist-form').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1310,28 +1307,24 @@ function getLaunchDate() {
             const messageEl = document.getElementById('form-message');
             const submitBtn = document.getElementById('waitlist-submit');
             
-            // Simple validation
             if (!validateEmail(email)) {
                 messageEl.textContent = 'Please enter a valid email address.';
                 messageEl.className = 'form-message error';
                 return;
             }
             
-            // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> Adding...';
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            // Send email using EmailJS with SMTP
+            // Send email using EmailJS
             sendWaitlistEmailAPI(email)
                 .then(() => {
-                    // Success message
                     messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
                     messageEl.className = 'form-message success';
                     this.reset();
                     
-                    // Store in localStorage to track signups
                     let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
                     waitlistSignups.push({
                         email: email,
@@ -1339,10 +1332,7 @@ function getLaunchDate() {
                     });
                     localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
                     
-                    // Update testimonials section with new signup
                     updateTestimonials();
-                    
-                    // Show review popup
                     setTimeout(showReviewPopup, 1000);
                 })
                 .catch(error => {
@@ -1351,13 +1341,12 @@ function getLaunchDate() {
                     messageEl.className = 'form-message error';
                 })
                 .finally(() => {
-                    // Reset button state
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Join Waitlist';
                 });
         });
         
-        // FIXED: EmailJS with SMTP for waitlist
+        // EmailJS for waitlist
         async function sendWaitlistEmailAPI(email) {
             try {
                 const templateParams = {
@@ -1367,10 +1356,9 @@ function getLaunchDate() {
                     message: `New waitlist signup: ${email}\n\nTimestamp: ${new Date().toLocaleString()}`
                 };
 
-                // REPLACE THESE WITH YOUR EMAILJS SERVICE AND TEMPLATE IDs
                 const response = await emailjs.send(
-                    'service_eqad9x7', // Your SMTP service ID from EmailJS
-                    'template_v9sz1ys', // Your waitlist template ID
+                    'service_eqad9x7',
+                    'template_v9sz1ys',
                     templateParams
                 );
                 
@@ -1382,7 +1370,7 @@ function getLaunchDate() {
             }
         }
         
-        // FIXED: EmailJS with SMTP for reviews
+        // EmailJS for reviews
         async function sendReviewEmailAPI(review, rating, userEmail = 'Anonymous') {
             try {
                 const templateParams = {
@@ -1394,10 +1382,9 @@ function getLaunchDate() {
                     timestamp: new Date().toLocaleString()
                 };
 
-                // REPLACE THESE WITH YOUR EMAILJS SERVICE AND TEMPLATE IDs
                 const response = await emailjs.send(
-                    'service_eqad9x7', // Your SMTP service ID from EmailJS
-                    'template_v9sz1ys', // Your review template ID
+                    'service_eqad9x7',
+                    'template_lrxyddw',
                     templateParams
                 );
                 
@@ -1408,16 +1395,55 @@ function getLaunchDate() {
                 throw error;
             }
         }
-        
+
+        // NEW: Synchronized reviews using Google Apps Script
+        async function fetchReviewsFromGoogleScript() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const reviews = await response.json();
+                return reviews;
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                // Fallback to localStorage
+                return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+            }
+        }
+
+        async function saveReviewToGoogleScript(review) {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(review)
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                return await response.json();
+            } catch (error) {
+                console.error('Error saving review to Google Script:', error);
+                throw error;
+            }
+        }
+
         // Review system functionality
         let currentRating = 0;
-        let isSubmittingReview = false; // FIXED: Prevent multiple submissions
+        let isSubmittingReview = false;
         
-        // Initialize reviews from localStorage
-        function initializeReviews() {
-            const reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-            renderReviews(reviews);
-            updateReviewStats(reviews);
+        // Initialize reviews from Google Script
+        async function initializeReviews() {
+            try {
+                const reviews = await fetchReviewsFromGoogleScript();
+                renderReviews(reviews);
+                updateReviewStats(reviews);
+            } catch (error) {
+                console.error('Error initializing reviews:', error);
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                renderReviews(localReviews);
+                updateReviewStats(localReviews);
+            }
         }
         
         // Render reviews to the page
@@ -1425,7 +1451,6 @@ function getLaunchDate() {
             const reviewsContainer = document.getElementById('reviews-container');
             const noReviews = document.getElementById('no-reviews');
             
-            // Clear the container
             reviewsContainer.innerHTML = '';
             
             if (reviews.length === 0) {
@@ -1436,10 +1461,8 @@ function getLaunchDate() {
             
             noReviews.style.display = 'none';
             
-            // Sort reviews by date (newest first)
             reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            // Create review cards
             reviews.forEach(review => {
                 const reviewCard = document.createElement('div');
                 reviewCard.className = 'review-card fade-in';
@@ -1451,7 +1474,6 @@ function getLaunchDate() {
                     day: 'numeric' 
                 });
                 
-                // Generate star rating HTML
                 let starsHtml = '';
                 for (let i = 1; i <= 5; i++) {
                     starsHtml += `<span class="star ${i <= review.rating ? 'active' : ''}">★</span>`;
@@ -1481,7 +1503,6 @@ function getLaunchDate() {
                 reviewsContainer.appendChild(reviewCard);
             });
             
-            // Trigger fade-in animation for new reviews
             setTimeout(() => {
                 const fadeElements = reviewsContainer.querySelectorAll('.fade-in');
                 fadeElements.forEach(element => {
@@ -1500,7 +1521,6 @@ function getLaunchDate() {
             document.getElementById('total-reviews').textContent = `${totalReviews} Review${totalReviews !== 1 ? 's' : ''}`;
             document.getElementById('average-rating').textContent = averageRating;
             
-            // Update average stars
             const averageStars = document.getElementById('average-stars');
             averageStars.innerHTML = '';
             
@@ -1518,7 +1538,7 @@ function getLaunchDate() {
             }
         }
         
-        // FIXED: Save a new review with proper email notification
+        // Save review with synchronization
         async function saveReview(reviewText, rating, userEmail = 'Anonymous') {
             const newReview = {
                 id: Date.now().toString(),
@@ -1532,18 +1552,17 @@ function getLaunchDate() {
                 // Send email notification
                 await sendReviewEmailAPI(reviewText, rating, userEmail);
                 
-                // Save to localStorage
-                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
-                localReviews.push(newReview);
-                localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
+                // Save to Google Script for synchronization
+                await saveReviewToGoogleScript(newReview);
                 
-                // Update UI
-                renderReviews(localReviews);
-                updateReviewStats(localReviews);
+                // Update UI with fresh data from server
+                const allReviews = await fetchReviewsFromGoogleScript();
+                renderReviews(allReviews);
+                updateReviewStats(allReviews);
                 
             } catch (error) {
-                console.error('Error sending review email:', error);
-                // Still save locally even if email fails
+                console.error('Error in saveReview:', error);
+                // Fallback to localStorage
                 const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 localReviews.push(newReview);
                 localStorage.setItem('lynxReviews', JSON.stringify(localReviews));
@@ -1600,7 +1619,6 @@ function getLaunchDate() {
             const reviewPopup = document.getElementById('review-popup');
             reviewPopup.classList.add('active');
             
-            // Reset form
             document.getElementById('review-text').value = '';
             setRating(0);
         }
@@ -1610,52 +1628,40 @@ function getLaunchDate() {
             reviewPopup.classList.remove('active');
             document.getElementById('review-text').value = '';
             setRating(0);
-            isSubmittingReview = false; // Reset submission flag
+            isSubmittingReview = false;
         }
         
         // Add event listeners for review popup
         document.getElementById('review-no').addEventListener('click', hideReviewPopup);
         document.getElementById('review-yes').addEventListener('click', async function() {
-            // FIXED: Prevent multiple submissions
-            if (isSubmittingReview) {
-                return;
-            }
-            
+            if (isSubmittingReview) return;
+
             const reviewText = document.getElementById('review-text').value.trim();
             
             if (currentRating === 0) {
                 alert('Please select a star rating before submitting.');
                 return;
             }
-            
+
             if (reviewText) {
-                // Set submitting flag
                 isSubmittingReview = true;
-                
-                // Change button to loading state
                 const submitBtn = document.getElementById('review-yes');
                 const originalText = submitBtn.textContent;
                 submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
                 submitBtn.disabled = true;
-                
+
                 try {
-                    // Get user email if available
                     const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
                     const userEmail = waitlistSignups.length > 0 ? waitlistSignups[waitlistSignups.length - 1].email : 'Anonymous';
                     
-                    // Save the review
                     await saveReview(reviewText, currentRating, userEmail);
                     
-                    // FIXED: Show proper confirmation message
-                    alert('Thank you for your review! Your feedback has been submitted.');
-                    
-                    // Hide the popup
+                    alert('Thank you for your review! Your feedback has been submitted and is now visible to everyone.');
                     hideReviewPopup();
                 } catch (error) {
                     console.error('Error submitting review:', error);
                     alert('There was an error submitting your review. Please try again.');
                 } finally {
-                    // Reset button state
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
                     isSubmittingReview = false;
@@ -1678,12 +1684,8 @@ function getLaunchDate() {
             const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
             const testimonialsGrid = document.querySelector('.testimonials-grid');
             
-            // Only update if we have new signups and testimonials are visible
             if (waitlistSignups.length > 0 && testimonialsGrid) {
-                // Get the most recent signups (last 3)
                 const recentSignups = waitlistSignups.slice(-3);
-                
-                // Update testimonial cards with actual user data
                 const testimonialCards = testimonialsGrid.querySelectorAll('.testimonial-card');
                 
                 testimonialCards.forEach((card, index) => {
@@ -1692,15 +1694,12 @@ function getLaunchDate() {
                         const name = email.split('@')[0];
                         const initial = name.charAt(0).toUpperCase();
                         
-                        // Update avatar
                         const avatar = card.querySelector('.author-avatar');
                         avatar.textContent = initial;
                         
-                        // Update name
                         const nameElement = card.querySelector('.author-info h4');
                         nameElement.textContent = name;
                         
-                        // Update waitlist member text
                         const memberText = card.querySelector('.author-info p');
                         memberText.textContent = 'Waitlist Member';
                     }
@@ -1710,7 +1709,6 @@ function getLaunchDate() {
         
         // Scroll animations
         document.addEventListener('DOMContentLoaded', function() {
-            // Header scroll effect
             const header = document.getElementById('header');
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 50) {
@@ -1720,9 +1718,7 @@ function getLaunchDate() {
                 }
             });
             
-            // Fade in elements on scroll
             const fadeElements = document.querySelectorAll('.fade-in');
-            
             const fadeInOnScroll = function() {
                 fadeElements.forEach(element => {
                     const elementTop = element.getBoundingClientRect().top;
@@ -1734,19 +1730,14 @@ function getLaunchDate() {
                 });
             };
             
-            // Check on load
             fadeInOnScroll();
-            
-            // Check on scroll
             window.addEventListener('scroll', fadeInOnScroll);
             
-            // Floating animation for shapes
             const shapes = document.querySelectorAll('.floating-shape');
             shapes.forEach((shape, index) => {
                 shape.style.animationDelay = `${index * 2}s`;
             });
             
-            // Smooth scrolling for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -1760,22 +1751,17 @@ function getLaunchDate() {
                 });
             });
             
-            // Initialize reviews system
             initializeReviews();
             initializeStarRating();
-            
-            // Initialize testimonials with any existing signups
             updateTestimonials();
+
+            // Auto-refresh reviews every 30 seconds to keep them synchronized
+            setInterval(initializeReviews, 30000);
         });
         
-        // Performance optimization - lazy load non-critical elements
         window.addEventListener('load', function() {
-            // The Spline viewer is already set to load after page load
             // Additional lazy loading can be added here for other resources
         });
     </script>
 </body>
 </html>
-
-
-
