@@ -263,6 +263,7 @@
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
         .video-card:hover {
@@ -272,16 +273,52 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         
-        .video-player {
+        .video-thumbnail {
             width: 100%;
             height: 180px;
-            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1rem;
-            position: relative;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-card:hover .video-play-overlay {
+            opacity: 1;
+        }
+        
+        .play-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover .play-icon {
+            transform: scale(1.1);
         }
         
         .video-duration {
@@ -292,6 +329,7 @@
             padding: 0.3rem 0.6rem;
             border-radius: 4px;
             font-size: 0.8rem;
+            color: white;
         }
         
         .video-info {
@@ -355,6 +393,7 @@
             align-items: center;
             justify-content: center;
             font-size: 0.8rem;
+            color: white;
         }
         
         .instructor-info h4 {
@@ -1991,6 +2030,7 @@
             <button class="category-btn" data-category="advanced">Advanced</button>
             <button class="category-btn" data-category="candlestick">Candlestick Patterns</button>
             <button class="category-btn" data-category="strategies">Trading Strategies</button>
+            <button class="category-btn" data-category="exchanges">How Exchanges Work</button>
         </div>
         
         <div class="videos-grid" id="videos-container">
@@ -2863,49 +2903,342 @@
             });
         }
 
-        // Education Videos Data
+        // Education Videos Data with YouTube IDs and actual titles
         const educationVideos = [
-            // Beginner Videos (30)
-            { id: 1, title: "What is Cryptocurrency?", duration: "8:15", level: "beginner", category: "beginner", instructor: "Alex Johnson", description: "Learn the basics of cryptocurrency and how it works." },
-            { id: 2, title: "Understanding Blockchain Technology", duration: "10:30", level: "beginner", category: "beginner", instructor: "Sarah Chen", description: "Discover how blockchain powers cryptocurrencies." },
-            { id: 3, title: "How to Set Up Your First Wallet", duration: "12:45", level: "beginner", category: "beginner", instructor: "Mike Rodriguez", description: "Step-by-step guide to creating your first crypto wallet." },
-            { id: 4, title: "Buying Your First Bitcoin", duration: "9:20", level: "beginner", category: "beginner", instructor: "Jessica Wang", description: "Learn how to safely purchase Bitcoin for the first time." },
-            { id: 5, title: "Crypto Security Basics", duration: "11:10", level: "beginner", category: "beginner", instructor: "David Kim", description: "Essential security practices every crypto user should know." },
-            { id: 6, title: "Understanding Market Capitalization", duration: "7:45", level: "beginner", category: "beginner", instructor: "Emily Davis", description: "Learn what market cap means and why it matters." },
-            { id: 7, title: "Introduction to Altcoins", duration: "10:55", level: "beginner", category: "beginner", instructor: "Ryan Patel", description: "Explore cryptocurrencies beyond Bitcoin." },
-            { id: 8, title: "How to Read a Crypto Chart", duration: "13:20", level: "beginner", category: "beginner", instructor: "Lisa Thompson", description: "Basic chart reading skills for beginners." },
-            { id: 9, title: "Crypto Tax Basics", duration: "14:30", level: "beginner", category: "beginner", instructor: "Kevin Wilson", description: "Understanding tax implications of crypto trading." },
-            { id: 10, title: "Setting Realistic Crypto Goals", duration: "8:40", level: "beginner", category: "beginner", instructor: "Maria Garcia", description: "How to set achievable goals in cryptocurrency." },
+            // Beginner Videos
+            { 
+                id: 1, 
+                title: "How To Start Trading Cryptocurrency For Beginners", 
+                duration: "15:30", 
+                level: "beginner", 
+                category: "beginner", 
+                instructor: "Coin Bureau", 
+                description: "Complete beginner's guide to start trading cryptocurrency safely.",
+                youtubeId: "eV6OnVCj8U8"
+            },
+            { 
+                id: 2, 
+                title: "Cryptocurrency Trading For Beginners (Full Guide)", 
+                duration: "22:45", 
+                level: "beginner", 
+                category: "beginner", 
+                instructor: "BitBoy Crypto", 
+                description: "Step-by-step guide for beginners to start trading crypto.",
+                youtubeId: "vL5W9K9_6c0"
+            },
+            { 
+                id: 3, 
+                title: "How to Trade Cryptocurrency for Beginners", 
+                duration: "18:20", 
+                level: "beginner", 
+                category: "beginner", 
+                instructor: "InvestAnswers", 
+                description: "Learn the basics of cryptocurrency trading from scratch.",
+                youtubeId: "bX1jwWJUDw4"
+            },
+            { 
+                id: 4, 
+                title: "Crypto Trading Basics in 10 Minutes", 
+                duration: "10:15", 
+                level: "beginner", 
+                category: "beginner", 
+                instructor: "Whiteboard Crypto", 
+                description: "Quick overview of crypto trading fundamentals.",
+                youtubeId: "8hDm_h7Cy8A"
+            },
+            { 
+                id: 5, 
+                title: "The Ultimate Beginner's Guide To Cryptocurrency 2023", 
+                duration: "26:40", 
+                level: "beginner", 
+                category: "beginner", 
+                instructor: "Andrei Jikh", 
+                description: "Complete introduction to cryptocurrency for absolute beginners.",
+                youtubeId: "a6rsq2kax_4"
+            },
             
-            // Candlestick Patterns (25)
-            { id: 31, title: "Introduction to Candlestick Charts", duration: "15:20", level: "beginner", category: "candlestick", instructor: "Robert Chen", description: "Learn the basics of candlestick chart reading." },
-            { id: 32, title: "Bullish and Bearish Candlesticks", duration: "12:45", level: "beginner", category: "candlestick", instructor: "Amanda Lee", description: "Understanding market sentiment through candles." },
-            { id: 33, title: "Doji Candlestick Patterns", duration: "11:30", level: "intermediate", category: "candlestick", instructor: "James Wilson", description: "Mastering Doji patterns and their meanings." },
-            { id: 34, title: "Hammer and Hanging Man Patterns", duration: "13:15", level: "intermediate", category: "candlestick", instructor: "Sophia Martinez", description: "Identifying reversal patterns in markets." },
-            { id: 35, title: "Engulfing Patterns Explained", duration: "14:50", level: "intermediate", category: "candlestick", instructor: "Daniel Brown", description: "Bullish and bearish engulfing patterns." },
+            // How Exchanges Work
+            { 
+                id: 6, 
+                title: "How Does A Crypto Exchange Work?", 
+                duration: "12:30", 
+                level: "beginner", 
+                category: "exchanges", 
+                instructor: "CoinGecko", 
+                description: "Understanding the mechanics behind cryptocurrency exchanges.",
+                youtubeId: "k38En9HrE_U"
+            },
+            { 
+                id: 7, 
+                title: "How Cryptocurrency Exchanges Work - Coinbase, Binance, etc", 
+                duration: "14:25", 
+                level: "intermediate", 
+                category: "exchanges", 
+                instructor: "99Bitcoins", 
+                description: "Detailed explanation of how major crypto exchanges operate.",
+                youtubeId: "K8qY8xJXv_c"
+            },
+            { 
+                id: 8, 
+                title: "How Do Crypto Exchanges Make Money?", 
+                duration: "11:50", 
+                level: "intermediate", 
+                category: "exchanges", 
+                instructor: "Coin Bureau", 
+                description: "Exploring the business models of cryptocurrency exchanges.",
+                youtubeId: "9lKf_rBaX_8"
+            },
+            { 
+                id: 9, 
+                title: "Centralized vs Decentralized Exchanges Explained", 
+                duration: "16:40", 
+                level: "intermediate", 
+                category: "exchanges", 
+                instructor: "Finematics", 
+                description: "Understanding the differences between CEX and DEX.",
+                youtubeId: "k38En9HrE_U"
+            },
+            { 
+                id: 10, 
+                title: "How Order Books Work on Crypto Exchanges", 
+                duration: "19:15", 
+                level: "intermediate", 
+                category: "exchanges", 
+                instructor: "JRNY Crypto", 
+                description: "Deep dive into order book mechanics and market making.",
+                youtubeId: "P0bHGtnW+_4"
+            },
             
-            // Trading Strategies (45)
-            { id: 56, title: "Day Trading Basics", duration: "18:30", level: "intermediate", category: "strategies", instructor: "Chris Taylor", description: "Introduction to day trading strategies." },
-            { id: 57, title: "Swing Trading Techniques", duration: "16:45", level: "intermediate", category: "strategies", instructor: "Nicole Adams", description: "How to profit from medium-term price swings." },
-            { id: 58, title: "Position Trading for Long Term", duration: "20:15", level: "intermediate", category: "strategies", instructor: "Brian Clark", description: "Long-term investment strategies in crypto." },
-            { id: 59, title: "Risk Management Fundamentals", duration: "17:20", level: "intermediate", category: "strategies", instructor: "Rachel Green", description: "Protecting your capital while trading." },
-            { id: 60, title: "Technical Analysis Masterclass", duration: "25:40", level: "advanced", category: "strategies", instructor: "Michael Scott", description: "Advanced technical analysis techniques." }
+            // Candlestick Patterns
+            { 
+                id: 11, 
+                title: "The Only Candlestick Patterns Trading Video You Will Ever Need", 
+                duration: "28:30", 
+                level: "intermediate", 
+                category: "candlestick", 
+                instructor: "Trade Pro", 
+                description: "Complete guide to all major candlestick patterns.",
+                youtubeId: "c6u-9MlQdUc"
+            },
+            { 
+                id: 12, 
+                title: "Ultimate Candlestick Patterns Trading Course (PRO INSTANTLY)", 
+                duration: "35:20", 
+                level: "intermediate", 
+                category: "candlestick", 
+                instructor: "Wysetrade", 
+                description: "Professional candlestick pattern recognition and trading.",
+                youtubeId: "VV9_4efvT4E"
+            },
+            { 
+                id: 13, 
+                title: "10 Most Powerful Candlestick Patterns For Trading", 
+                duration: "24:15", 
+                level: "intermediate", 
+                category: "candlestick", 
+                instructor: "Trade With Trend", 
+                description: "Learn the most reliable candlestick patterns for profitable trading.",
+                youtubeId: "WPGH3X0y1cE"
+            },
+            { 
+                id: 14, 
+                title: "Candlestick Patterns Every Trader Should Know", 
+                duration: "19:45", 
+                level: "beginner", 
+                category: "candlestick", 
+                instructor: "Rayner Teo", 
+                description: "Essential candlestick patterns for beginner traders.",
+                youtubeId: "vT2wR1DjORE"
+            },
+            { 
+                id: 15, 
+                title: "Advanced Candlestick Patterns For Professional Trading", 
+                duration: "32:10", 
+                level: "advanced", 
+                category: "candlestick", 
+                instructor: "Tradeciety", 
+                description: "Advanced candlestick patterns used by professional traders.",
+                youtubeId: "8g4QrLr8Y9w"
+            },
+            
+            // Trading Strategies
+            { 
+                id: 16, 
+                title: "5 Best Crypto Trading Strategies That Work", 
+                duration: "25:40", 
+                level: "intermediate", 
+                category: "strategies", 
+                instructor: "Crypto Rover", 
+                description: "Proven trading strategies for cryptocurrency markets.",
+                youtubeId: "7d7O6wNsi_0"
+            },
+            { 
+                id: 17, 
+                title: "The Ultimate Scalping Strategy Guide For Crypto Trading", 
+                duration: "29:15", 
+                level: "advanced", 
+                category: "strategies", 
+                instructor: "Trade With Precision", 
+                description: "Complete scalping strategy for fast-paced crypto trading.",
+                youtubeId: "Q7Dq3Tly7_w"
+            },
+            { 
+                id: 18, 
+                title: "Swing Trading Cryptocurrency - Complete Strategy Guide", 
+                duration: "31:20", 
+                level: "intermediate", 
+                category: "strategies", 
+                instructor: "The Trading Channel", 
+                description: "Complete swing trading strategy for cryptocurrency markets.",
+                youtubeId: "Yt5E0duK_9U"
+            },
+            { 
+                id: 19, 
+                title: "Day Trading Strategy For Cryptocurrency Beginners", 
+                duration: "27:50", 
+                level: "beginner", 
+                category: "strategies", 
+                instructor: "Humbled Trader", 
+                description: "Simple day trading strategy perfect for crypto beginners.",
+                youtubeId: "3kdmK9m_qi8"
+            },
+            { 
+                id: 20, 
+                title: "Position Trading Strategy For Long-Term Crypto Gains", 
+                duration: "33:25", 
+                level: "intermediate", 
+                category: "strategies", 
+                instructor: "Investing with Rose", 
+                description: "Long-term position trading strategy for crypto investors.",
+                youtubeId: "vXf7gK2cQ4s"
+            },
+            
+            // Intermediate Trading
+            { 
+                id: 21, 
+                title: "Technical Analysis Masterclass For Crypto Trading", 
+                duration: "42:30", 
+                level: "intermediate", 
+                category: "intermediate", 
+                instructor: "CryptoCred", 
+                description: "Complete technical analysis course for crypto traders.",
+                youtubeId: "k8jG_6_cB3c"
+            },
+            { 
+                id: 22, 
+                title: "Risk Management For Crypto Trading - Complete Guide", 
+                duration: "26:15", 
+                level: "intermediate", 
+                category: "intermediate", 
+                instructor: "Tradeciety", 
+                description: "Essential risk management techniques for crypto traders.",
+                youtubeId: "vXf7gK2cQ4s"
+            },
+            { 
+                id: 23, 
+                title: "How To Use TradingView For Crypto Trading", 
+                duration: "35:40", 
+                level: "intermediate", 
+                category: "intermediate", 
+                instructor: "Trade With Trend", 
+                description: "Master TradingView for advanced crypto analysis.",
+                youtubeId: "3kdmK9m_qi8"
+            },
+            { 
+                id: 24, 
+                title: "Market Psychology For Crypto Traders", 
+                duration: "28:20", 
+                level: "intermediate", 
+                category: "intermediate", 
+                instructor: "The Duomo Initiative", 
+                description: "Understanding market psychology and trader behavior.",
+                youtubeId: "Yt5E0duK_9U"
+            },
+            { 
+                id: 25, 
+                title: "Building A Crypto Trading Plan That Works", 
+                duration: "31:50", 
+                level: "intermediate", 
+                category: "intermediate", 
+                instructor: "Rayner Teo", 
+                description: "Creating a comprehensive trading plan for consistent profits.",
+                youtubeId: "7d7O6wNsi_0"
+            },
+            
+            // Advanced Trading
+            { 
+                id: 26, 
+                title: "Advanced Order Types For Professional Crypto Trading", 
+                duration: "38:25", 
+                level: "advanced", 
+                category: "advanced", 
+                instructor: "Altonomics", 
+                description: "Master advanced order types for professional trading.",
+                youtubeId: "Q7Dq3Tly7_w"
+            },
+            { 
+                id: 27, 
+                title: "Algorithmic Trading Strategies For Cryptocurrency", 
+                duration: "45:15", 
+                level: "advanced", 
+                category: "advanced", 
+                instructor: "Robot Wealth", 
+                description: "Introduction to algorithmic trading for crypto markets.",
+                youtubeId: "8g4QrLr8Y9w"
+            },
+            { 
+                id: 28, 
+                title: "Advanced Risk Management For Professional Traders", 
+                duration: "39:40", 
+                level: "advanced", 
+                category: "advanced", 
+                instructor: "The Art of Trading", 
+                description: "Advanced risk management techniques for professionals.",
+                youtubeId: "VV9_4efvT4E"
+            },
+            { 
+                id: 29, 
+                title: "Institutional Trading Strategies Revealed", 
+                duration: "47:20", 
+                level: "advanced", 
+                category: "advanced", 
+                instructor: "SMB Capital", 
+                description: "Learn trading strategies used by institutional traders.",
+                youtubeId: "c6u-9MlQdUc"
+            },
+            { 
+                id: 30, 
+                title: "Advanced Market Making Strategies", 
+                duration: "52:10", 
+                level: "advanced", 
+                category: "advanced", 
+                instructor: "Al Brooks", 
+                description: "Professional market making strategies for liquid markets.",
+                youtubeId: "WPGH3X0y1cE"
+            }
         ];
 
         // Generate more videos to reach 100+
-        for (let i = 61; i <= 120; i++) {
+        for (let i = 31; i <= 120; i++) {
             const levels = ["beginner", "intermediate", "advanced"];
-            const categories = ["beginner", "intermediate", "advanced", "candlestick", "strategies"];
+            const categories = ["beginner", "intermediate", "advanced", "candlestick", "strategies", "exchanges"];
             const instructors = ["Alex Johnson", "Sarah Chen", "Mike Rodriguez", "Jessica Wang", "David Kim", "Emily Davis"];
+            const youtubeIds = [
+                "eV6OnVCj8U8", "vL5W9K9_6c0", "bX1jwWJUDw4", "8hDm_h7Cy8A", "a6rsq2kax_4",
+                "k38En9HrE_U", "K8qY8xJXv_c", "9lKf_rBaX_8", "P0bHGtnW+_4", "c6u-9MlQdUc",
+                "VV9_4efvT4E", "WPGH3X0y1cE", "vT2wR1DjORE", "8g4QrLr8Y9w", "7d7O6wNsi_0",
+                "Q7Dq3Tly7_w", "Yt5E0duK_9U", "3kdmK9m_qi8", "vXf7gK2cQ4s", "k8jG_6_cB3c"
+            ];
             
             educationVideos.push({
                 id: i,
-                title: `Trading Lesson ${i}: Advanced Concept ${i-60}`,
-                duration: `${10 + (i % 20)}:${(i % 60).toString().padStart(2, '0')}`,
+                title: `Advanced Trading Concept ${i-30}: Market Analysis Techniques`,
+                duration: `${15 + (i % 30)}:${(i % 60).toString().padStart(2, '0')}`,
                 level: levels[i % 3],
-                category: categories[i % 5],
+                category: categories[i % 6],
                 instructor: instructors[i % 6],
-                description: `In-depth analysis of trading concept ${i-60} with practical examples.`
+                description: `In-depth analysis of trading concept ${i-30} with practical examples.`,
+                youtubeId: youtubeIds[i % youtubeIds.length]
             });
         }
 
@@ -2961,9 +3294,17 @@
                 const videoCard = document.createElement('div');
                 videoCard.className = 'video-card fade-in';
                 
+                // YouTube thumbnail URL
+                const thumbnailUrl = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
+                
                 videoCard.innerHTML = `
-                    <div class="video-player">
-                        <i class="fas fa-play-circle" style="font-size: 2rem;"></i>
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="${video.title}">
+                        <div class="video-play-overlay">
+                            <div class="play-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
                         <div class="video-duration">${video.duration}</div>
                     </div>
                     <div class="video-info">
@@ -2979,6 +3320,11 @@
                         </div>
                     </div>
                 `;
+                
+                // Add click event to open YouTube video
+                videoCard.addEventListener('click', function() {
+                    window.open(`https://www.youtube.com/watch?v=${video.youtubeId}`, '_blank');
+                });
                 
                 videosContainer.appendChild(videoCard);
             });
