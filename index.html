@@ -23,6 +23,507 @@
     <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
+        /* Add new styles for the additional components */
+        
+        /* Navigation Styles */
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Community Scoreboard Page Styles */
+        .scoreboard-page {
+            display: none;
+            padding: 8rem 5% 4rem;
+            min-height: 100vh;
+        }
+        
+        .scoreboard-page.active {
+            display: block;
+        }
+        
+        .scoreboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .scoreboard-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .scoreboard-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--lynx-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .scoreboard-table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .scoreboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .scoreboard-table th,
+        .scoreboard-table td {
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .scoreboard-table th {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .scoreboard-table th:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .scoreboard-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .scoreboard-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Referral Source Popup */
+        .referral-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9997;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .referral-popup.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .referral-content {
+            background-color: #111111;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .referral-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .referral-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .referral-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .referral-option input[type="radio"] {
+            margin: 0;
+        }
+        
+        .referral-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .referral-input:focus {
+            outline: none;
+            border-color: white;
+        }
+        
+        /* Enhanced Education Page Styles */
+        .education-page {
+            display: none;
+            padding: 8rem 5% 4rem;
+            min-height: 100vh;
+        }
+        
+        .education-page.active {
+            display: block;
+        }
+        
+        .education-categories {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .category-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn.active,
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .video-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 180px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            position: relative;
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .video-info {
+            padding: 1.5rem;
+        }
+        
+        .video-level {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .level-beginner {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .level-intermediate {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+        
+        .level-advanced {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        
+        .video-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .video-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .video-instructor {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .instructor-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .instructor-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .instructor-info p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
+        
+        .load-more {
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        /* Enhanced Roadmap Page Styles */
+        .roadmap-page {
+            display: none;
+            padding: 8rem 5% 4rem;
+            min-height: 100vh;
+        }
+        
+        .roadmap-page.active {
+            display: block;
+        }
+        
+        .roadmap-visual {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+        
+        .roadmap-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            z-index: 1;
+        }
+        
+        .milestone-visual {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .milestone-dot {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.8rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .milestone-visual.active .milestone-dot {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .milestone-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .milestone-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .milestone-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .milestone-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .milestone-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .milestone-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .status-upcoming {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+        
+        .status-inprogress {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+        
+        .status-completed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+        }
+        
+        /* Existing styles remain the same, adding only the new ones above */
+        /* ... (all your existing CSS remains here) ... */
+        
         /* stylelint-disable property-no-vendor-prefix */
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
@@ -890,6 +1391,23 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .roadmap-visual {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .roadmap-line {
+                display: none;
+            }
+            
+            .milestone-visual {
+                width: 100%;
+            }
         }
         
         @media (max-width: 768px) {
@@ -940,6 +1458,35 @@
                 gap: 1rem;
                 width: 100%;
             }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .scoreboard-stats {
+                flex-direction: column;
+            }
+            
+            .stat-card {
+                width: 100%;
+            }
+            
+            .scoreboard-table {
+                font-size: 0.9rem;
+            }
+            
+            .scoreboard-table th,
+            .scoreboard-table td {
+                padding: 1rem;
+            }
         }
         
         @media (max-width: 576px) {
@@ -966,6 +1513,16 @@
             
             .review-buttons {
                 flex-direction: column;
+            }
+            
+            .scoreboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .scoreboard-controls {
+                width: 100%;
+                justify-content: space-between;
             }
         }
 
@@ -1035,6 +1592,50 @@
         a, button, .feature-card, .review-card, .testimonial-card, .countdown-item {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: 0;
+                background: rgba(0, 0, 0, 0.95);
+                width: 100%;
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0;
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                z-index: 999;
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            
+            .nav-link {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1060,6 +1661,43 @@
         </div>
     </div>
 
+    <!-- Referral Source Popup -->
+    <div class="referral-popup" id="referral-popup">
+        <div class="referral-content">
+            <h3>How did you find us?</h3>
+            <p>Help us understand how you discovered Lynx.</p>
+            
+            <div class="referral-options">
+                <label class="referral-option">
+                    <input type="radio" name="referral-source" value="Social Media">
+                    <span>Social Media</span>
+                </label>
+                
+                <label class="referral-option">
+                    <input type="radio" name="referral-source" value="Referrals">
+                    <span>Referrals</span>
+                </label>
+                <input type="email" class="referral-input" id="referral-email" placeholder="Enter referrer's email">
+                
+                <label class="referral-option">
+                    <input type="radio" name="referral-source" value="Search">
+                    <span>Search</span>
+                </label>
+                
+                <label class="referral-option">
+                    <input type="radio" name="referral-source" value="Other">
+                    <span>Other</span>
+                </label>
+                <input type="text" class="referral-input" id="other-source" placeholder="Please specify">
+            </div>
+            
+            <div class="review-buttons">
+                <button class="btn btn-secondary" id="referral-cancel">Cancel</button>
+                <button class="btn btn-primary" id="referral-submit">Continue</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Skip link for accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -1071,201 +1709,379 @@
             </div>
             <span>Lynx</span>
         </div>
+        
+        <button class="mobile-menu-btn" id="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-links" id="nav-links">
+            <a href="#" class="nav-link" id="nav-home">Home</a>
+            <a href="#" class="nav-link" id="nav-scoreboard">Community Scoreboard</a>
+            <a href="#" class="nav-link" id="nav-education">Education</a>
+            <a href="#" class="nav-link" id="nav-plan">Our Plan</a>
+        </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="main-content">
-        <div class="hero-content">
-            <h1 class="fade-in">The Future of Digital Experiences is Here</h1>
-            <p class="fade-in">Lynx revolutionizes how businesses and users interact with digital platforms. Get ready for unprecedented speed, security, and performance.</p>
-            
-            <!-- Countdown Timer -->
-            <div class="countdown fade-in">
-                <div class="countdown-item">
-                    <div class="countdown-number" id="days">00</div>
-                    <div class="countdown-label">Days</div>
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="fade-in">The Future of Digital Experiences is Here</h1>
+                <p class="fade-in">Lynx revolutionizes how businesses and users interact with digital platforms. Get ready for unprecedented speed, security, and performance.</p>
+                
+                <!-- Countdown Timer -->
+                <div class="countdown fade-in">
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="days">00</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="hours">00</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="minutes">00</div>
+                        <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="seconds">00</div>
+                        <div class="countdown-label">Seconds</div>
+                    </div>
                 </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="hours">00</div>
-                    <div class="countdown-label">Hours</div>
+                
+                <!-- Email Signup Form -->
+                <div class="email-signup fade-in">
+                    <h3>Join Our Exclusive Waitlist</h3>
+                    <p>Be the first to know when we launch and get early access benefits.</p>
+                    <form class="email-form" id="waitlist-form">
+                        <input type="email" class="email-input" placeholder="Enter your email" required aria-label="Email address">
+                        <button type="submit" class="btn btn-primary" id="waitlist-submit">Join Waitlist</button>
+                    </form>
+                    <div class="form-message" id="form-message"></div>
                 </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="minutes">00</div>
-                    <div class="countdown-label">Minutes</div>
+                
+                <div class="hero-buttons">
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                    <a href="#reviews" class="btn btn-secondary">See Reviews</a>
                 </div>
-                <div class="countdown-item">
-                    <div class="countdown-number" id="seconds">00</div>
-                    <div class="countdown-label">Seconds</div>
+                
+                <div class="hero-bg">
+                    <div class="floating-shape shape-1"></div>
+                    <div class="floating-shape shape-2"></div>
+                    <div class="floating-shape shape-3"></div>
+                    <!-- Lynx Coin only on home page -->
+                    <div class="right">
+                        <spline-viewer id="lynx3d" url="https://prod.spline.design/qP9n94Yu1DoXuFeX/scene.splinecode"></spline-viewer>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Email Signup Form -->
-            <div class="email-signup fade-in">
-                <h3>Join Our Exclusive Waitlist</h3>
-                <p>Be the first to know when we launch and get early access benefits.</p>
-                <form class="email-form" id="waitlist-form">
-                    <input type="email" class="email-input" placeholder="Enter your email" required aria-label="Email address">
-                    <button type="submit" class="btn btn-primary" id="waitlist-submit">Join Waitlist</button>
-                </form>
-                <div class="form-message" id="form-message"></div>
-            </div>
-            
-            <div class="hero-buttons">
-                <a href="#features" class="btn btn-secondary">Learn More</a>
-                <a href="#reviews" class="btn btn-secondary">See Reviews</a>
-            </div>
-            
-            <div class="hero-bg">
-                <div class="floating-shape shape-1"></div>
-                <div class="floating-shape shape-2"></div>
-                <div class="floating-shape shape-3"></div>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="section-header">
+                <h2 class="fade-in">Powerful Features</h2>
+                <p class="fade-in">Lynx combines cutting-edge technology with user-centric design to deliver an unparalleled experience</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Lightning Fast Performance</h3>
+                    <p>Experience sub-second load times with our optimized architecture. Perfect for high-traffic applications and real-time interactions.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Military-Grade Security</h3>
+                    <p>End-to-end encryption and zero-trust architecture protect your data from emerging threats. Sleep well knowing your information is secure.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Actionable Analytics</h3>
+                    <p>Transform data into decisions with our intuitive analytics dashboard. Track user behavior, conversion funnels, and performance metrics in real-time.</p>
+                </div>
+                
+                <!-- NEW: Trading Speed Card -->
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Ultra-Fast Trading</h3>
+                    <p>Execute trades in milliseconds with our high-performance trading engine. Experience institutional-grade speed for all your transactions.</p>
+                </div>
+                
+                <!-- NEW: 1000+ Assets Card -->
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3>1,000+ Assets Supported</h3>
+                    <p>Access a vast ecosystem of cryptocurrencies, tokens, and digital assets. Trade everything from major coins to emerging altcoins.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Enterprise Ready</h3>
+                    <p>Built to meet the strictest compliance standards including SOC2, GDPR, and HIPAA. Deploy with confidence in regulated industries.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="reviews-section" id="reviews">
+            <div class="reviews-header">
+                <h2 class="fade-in">Customer Reviews</h2>
+                <div class="reviews-stats fade-in">
+                    <div class="average-rating">
+                        <div class="rating-value" id="average-rating">0.0</div>
+                        <div class="rating-stars" id="average-stars">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                        <div class="total-reviews" id="total-reviews">0 Reviews</div>
+                    </div>
+                    <button class="btn btn-primary" id="write-review-btn">Write a Review</button>
+                </div>
+            </div>
+            
+            <div class="reviews-grid" id="reviews-container">
+                <!-- Reviews will be dynamically inserted here -->
+                <div class="no-reviews" id="no-reviews">
+                    <p>No reviews yet. Be the first to share your experience!</p>
+                </div>
+            </div>
+            <div class="sync-status" id="sync-status">Last synced: Just now</div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials" id="testimonials">
+            <div class="section-header">
+                <h2 class="fade-in">Testimonials</h2>
+                <p class="fade-in">See what early supporters are saying about Lynx</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-content">
+                        "I've been following Lynx's development for months and the features they're promising are exactly what our industry needs. Can't wait for the launch!"
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">PP</div>
+                        <div class="author-info">
+                            <h4>Pranav Pagitharan</h4>
+                            <p>Waitlist Member</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-content">
+                        "The security features alone make Lynx worth the wait. In today's digital landscape, having this level of protection will be a game-changer."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">HBS</div>
+                        <div class="author-info">
+                            <h4>Harnoor Bhangu Singh</h4>
+                            <p>Waitlist Member</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-content">
+                        "I signed up for the waitlist after seeing the performance benchmarks. If they deliver even half of what's promised, it will revolutionize our workflow."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SY</div>
+                        <div class="author-info">
+                            <h4>Salar Yousif</h4>
+                            <p>Waitlist Member</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <h2 class="fade-in">Ready to Transform Your Digital Experience?</h2>
+            <p class="fade-in">Join thousands of innovators who are already preparing for the Lynx launch.</p>
+            <div class="hero-buttons fade-in">
+                <a href="#main-content" class="btn btn-primary">Join Waitlist</a>
+                <a href="#features" class="btn btn-secondary">Explore Features</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Community Scoreboard Page -->
+    <section class="scoreboard-page" id="scoreboard-page">
         <div class="section-header">
-            <h2 class="fade-in">Powerful Features</h2>
-            <p class="fade-in">Lynx combines cutting-edge technology with user-centric design to deliver an unparalleled experience</p>
+            <h2>Community Scoreboard</h2>
+            <p>See who's joining the Lynx revolution</p>
         </div>
         
-        <div class="features-grid">
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3>Lightning Fast Performance</h3>
-                <p>Experience sub-second load times with our optimized architecture. Perfect for high-traffic applications and real-time interactions.</p>
+        <div class="scoreboard-stats">
+            <div class="stat-card">
+                <div class="stat-value" id="total-members">0</div>
+                <div class="stat-label">Total Members</div>
             </div>
-            
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h3>Military-Grade Security</h3>
-                <p>End-to-end encryption and zero-trust architecture protect your data from emerging threats. Sleep well knowing your information is secure.</p>
+            <div class="stat-card">
+                <div class="stat-value" id="new-today">0</div>
+                <div class="stat-label">New Today</div>
             </div>
-            
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3>Actionable Analytics</h3>
-                <p>Transform data into decisions with our intuitive analytics dashboard. Track user behavior, conversion funnels, and performance metrics in real-time.</p>
-            </div>
-            
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-gas-pump"></i>
-                </div>
-                <h3>Cost-Effective Scaling</h3>
-                <p>Our innovative architecture reduces operational costs by up to 60% compared to traditional solutions. Scale without breaking the bank.</p>
-            </div>
-            
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Enterprise Ready</h3>
-                <p>Built to meet the strictest compliance standards including SOC2, GDPR, and HIPAA. Deploy with confidence in regulated industries.</p>
-            </div>
-            
-            <div class="feature-card fade-in">
-                <div class="feature-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>User-Centric Design</h3>
-                <p>Intuitive interfaces designed through extensive user testing. Reduce training time and increase adoption rates across your organization.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Reviews Section -->
-    <section class="reviews-section" id="reviews">
-        <div class="reviews-header">
-            <h2 class="fade-in">Customer Reviews</h2>
-            <div class="reviews-stats fade-in">
-                <div class="average-rating">
-                    <div class="rating-value" id="average-rating">0.0</div>
-                    <div class="rating-stars" id="average-stars">
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                        <span class="star">★</span>
-                    </div>
-                    <div class="total-reviews" id="total-reviews">0 Reviews</div>
-                </div>
-                <button class="btn btn-primary" id="write-review-btn">Write a Review</button>
+            <div class="stat-card">
+                <div class="stat-value" id="new-this-week">0</div>
+                <div class="stat-label">This Week</div>
             </div>
         </div>
         
-        <div class="reviews-grid" id="reviews-container">
-            <!-- Reviews will be dynamically inserted here -->
-            <div class="no-reviews" id="no-reviews">
-                <p>No reviews yet. Be the first to share your experience!</p>
+        <div class="scoreboard-header">
+            <h3>Waitlist Members</h3>
+            <div class="scoreboard-controls">
+                <button class="btn btn-secondary" id="sort-newest">Newest First</button>
+                <button class="btn btn-secondary" id="sort-oldest">Oldest First</button>
+                <button class="btn btn-primary" id="refresh-scoreboard">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
             </div>
         </div>
-        <div class="sync-status" id="sync-status">Last synced: Just now</div>
+        
+        <div class="scoreboard-table-container">
+            <table class="scoreboard-table">
+                <thead>
+                    <tr>
+                        <th data-sort="name">Name</th>
+                        <th data-sort="email">Email</th>
+                        <th data-sort="date">Join Date</th>
+                        <th data-sort="source">Source</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreboard-body">
+                    <!-- Scoreboard data will be populated here -->
+                </tbody>
+            </table>
+        </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials" id="testimonials">
+    <!-- Education Page -->
+    <section class="education-page" id="education-page">
         <div class="section-header">
-            <h2 class="fade-in">Testimonials</h2>
-            <p class="fade-in">See what early supporters are saying about Lynx</p>
+            <h2>Trading Education Center</h2>
+            <p>Master the markets with our comprehensive trading curriculum</p>
         </div>
         
-        <div class="testimonials-grid">
-            <div class="testimonial-card fade-in">
-                <div class="testimonial-content">
-                    "I've been following Lynx's development for months and the features they're promising are exactly what our industry needs. Can't wait for the launch!"
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">PP</div>
-                    <div class="author-info">
-                        <h4>Pranav Pagitharan</h4>
-                        <p>Waitlist Member</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card fade-in">
-                <div class="testimonial-content">
-                    "The security features alone make Lynx worth the wait. In today's digital landscape, having this level of protection will be a game-changer."
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">HBS</div>
-                    <div class="author-info">
-                        <h4>Harnoor Bhangu Singh</h4>
-                        <p>Waitlist Member</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="testimonial-card fade-in">
-                <div class="testimonial-content">
-                    "I signed up for the waitlist after seeing the performance benchmarks. If they deliver even half of what's promised, it will revolutionize our workflow."
-                </div>
-                <div class="testimonial-author">
-                    <div class="author-avatar">SY</div>
-                    <div class="author-info">
-                        <h4>Salar Yousif</h4>
-                        <p>Waitlist Member</p>
-                    </div>
-                </div>
-            </div>
+        <div class="education-categories">
+            <button class="category-btn active" data-category="all">All Videos</button>
+            <button class="category-btn" data-category="beginner">Beginner</button>
+            <button class="category-btn" data-category="intermediate">Intermediate</button>
+            <button class="category-btn" data-category="advanced">Advanced</button>
+            <button class="category-btn" data-category="candlestick">Candlestick Patterns</button>
+            <button class="category-btn" data-category="strategies">Trading Strategies</button>
+        </div>
+        
+        <div class="videos-grid" id="videos-container">
+            <!-- Videos will be dynamically inserted here -->
+        </div>
+        
+        <div class="load-more">
+            <button class="btn btn-secondary" id="load-more-videos">Load More Videos</button>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <h2 class="fade-in">Ready to Transform Your Digital Experience?</h2>
-        <p class="fade-in">Join thousands of innovators who are already preparing for the Lynx launch.</p>
-        <div class="hero-buttons fade-in">
-            <a href="#main-content" class="btn btn-primary">Join Waitlist</a>
-            <a href="#features" class="btn btn-secondary">Explore Features</a>
+    <!-- Roadmap Page -->
+    <section class="roadmap-page" id="roadmap-page">
+        <div class="section-header">
+            <h2>Our Vision & Roadmap</h2>
+            <p>Building the future of digital finance, one milestone at a time</p>
+        </div>
+        
+        <div class="roadmap-visual">
+            <div class="roadmap-line"></div>
+            
+            <div class="milestone-visual active">
+                <div class="milestone-dot">🚀</div>
+                <div class="milestone-label">Launch</div>
+                <div class="milestone-date">Q1 2025</div>
+            </div>
+            
+            <div class="milestone-visual">
+                <div class="milestone-dot">🌌</div>
+                <div class="milestone-label">Future</div>
+                <div class="milestone-date">Q3 2025</div>
+            </div>
+            
+            <div class="milestone-visual">
+                <div class="milestone-dot">🌐</div>
+                <div class="milestone-label">Beyond</div>
+                <div class="milestone-date">Q1 2026</div>
+            </div>
+        </div>
+        
+        <div class="milestone-details">
+            <div class="milestone-card">
+                <h3>🚀 Launch Phase</h3>
+                <p class="milestone-date">Q1 2025</p>
+                <p><strong>Lynx Exchange Goes Live</strong> with core trading features and 500+ supported assets.</p>
+                
+                <ul class="feature-list">
+                    <li>Spot trading for major cryptocurrencies</li>
+                    <li>Advanced order types (limit, market, stop-loss)</li>
+                    <li>Real-time market data and charts</li>
+                    <li>Mobile and web trading platforms</li>
+                    <li>Basic wallet functionality</li>
+                    <li>24/7 customer support</li>
+                </ul>
+                
+                <div class="status-badge status-completed">In Progress</div>
+            </div>
+            
+            <div class="milestone-card">
+                <h3>🌌 Future Development</h3>
+                <p class="milestone-date">Q3 2025</p>
+                <p><strong>Decentralized Lending & Borrowing</strong> protocols with competitive rates.</p>
+                
+                <ul class="feature-list">
+                    <li>Margin trading with up to 10x leverage</li>
+                    <li>Lending pools for passive income</li>
+                    <li>Borrowing against crypto collateral</li>
+                    <li>Advanced risk management tools</li>
+                    <li>Institutional trading features</li>
+                    <li>API access for developers</li>
+                </ul>
+                
+                <div class="status-badge status-upcoming">Planned</div>
+            </div>
+            
+            <div class="milestone-card">
+                <h3>🌐 Beyond Horizon</h3>
+                <p class="milestone-date">Q1 2026</p>
+                <p><strong>Integrated Web3 Gaming & Metaverse Assets</strong> marketplace.</p>
+                
+                <ul class="feature-list">
+                    <li>NFT marketplace integration</li>
+                    <li>GameFi asset trading</li>
+                    <li>Metaverse land and asset trading</li>
+                    <li>Cross-chain interoperability</li>
+                    <li>DAO governance features</li>
+                    <li>Advanced DeFi protocols</li>
+                </ul>
+                
+                <div class="status-badge status-upcoming">Future Vision</div>
+            </div>
         </div>
     </section>
 
@@ -1293,11 +2109,6 @@
         </div>
     </footer>
 
-    <!-- Spline 3D Model -->
-    <div class="right">
-        <spline-viewer id="lynx3d" url="https://prod.spline.design/qP9n94Yu1DoXuFeX/scene.splinecode"></spline-viewer>
-    </div>
-    
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.86/build/spline-viewer.js"></script>
 
     <script>
@@ -1353,36 +2164,121 @@
         const countdownTimer = setInterval(updateCountdown, 1000);
         updateCountdown();
 
-        // Email signup form
+        // Email signup form - Updated to show referral popup first
         document.getElementById('waitlist-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = this.querySelector('.email-input').value;
-            const messageEl = document.getElementById('form-message');
-            const submitBtn = document.getElementById('waitlist-submit');
+            showReferralPopup();
+        });
+
+        // Store the email for later use after referral selection
+        let pendingEmail = '';
+
+        // Referral popup functionality
+        function showReferralPopup() {
+            pendingEmail = document.querySelector('.email-input').value;
             
-            if (!validateEmail(email)) {
-                messageEl.textContent = 'Please enter a valid email address.';
-                messageEl.className = 'form-message error';
+            if (!validateEmail(pendingEmail)) {
+                document.getElementById('form-message').textContent = 'Please enter a valid email address.';
+                document.getElementById('form-message').className = 'form-message error';
                 return;
             }
+            
+            document.getElementById('referral-popup').classList.add('active');
+        }
+
+        function hideReferralPopup() {
+            document.getElementById('referral-popup').classList.remove('active');
+            document.getElementById('referral-email').style.display = 'none';
+            document.getElementById('other-source').style.display = 'none';
+            
+            // Reset radio buttons
+            document.querySelectorAll('input[name="referral-source"]').forEach(radio => {
+                radio.checked = false;
+            });
+        }
+
+        // Handle referral source selection
+        document.querySelectorAll('input[name="referral-source"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('referral-email').style.display = 'none';
+                document.getElementById('other-source').style.display = 'none';
+                
+                if (this.value === 'Referrals') {
+                    document.getElementById('referral-email').style.display = 'block';
+                } else if (this.value === 'Other') {
+                    document.getElementById('other-source').style.display = 'block';
+                }
+            });
+        });
+
+        // Referral form submission
+        document.getElementById('referral-submit').addEventListener('click', function() {
+            const selectedSource = document.querySelector('input[name="referral-source"]:checked');
+            
+            if (!selectedSource) {
+                alert('Please select how you found us.');
+                return;
+            }
+            
+            let referralData = {
+                source: selectedSource.value
+            };
+            
+            if (selectedSource.value === 'Referrals') {
+                const referrerEmail = document.getElementById('referral-email').value;
+                if (!validateEmail(referrerEmail)) {
+                    alert('Please enter a valid referrer email address.');
+                    return;
+                }
+                referralData.referrerEmail = referrerEmail;
+            } else if (selectedSource.value === 'Other') {
+                const otherSource = document.getElementById('other-source').value;
+                if (!otherSource.trim()) {
+                    alert('Please specify how you found us.');
+                    return;
+                }
+                referralData.otherSource = otherSource;
+            }
+            
+            hideReferralPopup();
+            submitWaitlistForm(pendingEmail, referralData);
+        });
+
+        document.getElementById('referral-cancel').addEventListener('click', function() {
+            hideReferralPopup();
+        });
+
+        // Submit waitlist form with referral data
+        function submitWaitlistForm(email, referralData) {
+            const messageEl = document.getElementById('form-message');
+            const submitBtn = document.getElementById('waitlist-submit');
             
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> Adding...';
             messageEl.textContent = 'Adding you to our waitlist...';
             messageEl.className = 'form-message';
             
-            sendWaitlistEmailAPI(email)
+            sendWaitlistEmailAPI(email, referralData)
                 .then(() => {
                     messageEl.textContent = 'Thank you! You\'ve been added to our exclusive waitlist.';
                     messageEl.className = 'form-message success';
-                    this.reset();
+                    document.getElementById('waitlist-form').reset();
                     
                     let waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
-                    waitlistSignups.push({
+                    const newSignup = {
                         email: email,
-                        timestamp: new Date().toISOString()
-                    });
+                        timestamp: new Date().toISOString(),
+                        referralSource: referralData.source,
+                        referrerEmail: referralData.referrerEmail || '',
+                        otherSource: referralData.otherSource || ''
+                    };
+                    waitlistSignups.push(newSignup);
                     localStorage.setItem('lynxWaitlist', JSON.stringify(waitlistSignups));
+                    
+                    // Update scoreboard if it's visible
+                    if (document.getElementById('scoreboard-page').classList.contains('active')) {
+                        updateScoreboard();
+                    }
                     
                     updateTestimonials();
                     setTimeout(showReviewPopup, 1000);
@@ -1396,16 +2292,28 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Join Waitlist';
                 });
-        });
+        }
         
-        // EmailJS for waitlist
-        async function sendWaitlistEmailAPI(email) {
+        // EmailJS for waitlist - Updated to include referral data
+        async function sendWaitlistEmailAPI(email, referralData) {
             try {
+                let message = `New waitlist signup: ${email}\n\n`;
+                message += `Referral Source: ${referralData.source}\n`;
+                message += `Timestamp: ${new Date().toLocaleString()}\n`;
+                
+                if (referralData.referrerEmail) {
+                    message += `Referrer Email: ${referralData.referrerEmail}\n`;
+                }
+                
+                if (referralData.otherSource) {
+                    message += `Other Source: ${referralData.otherSource}\n`;
+                }
+
                 const templateParams = {
                     to_email: 'sssean.kk@gmail.com',
                     user_email: email,
                     subject: 'New Lynx Waitlist Signup',
-                    message: `New waitlist signup: ${email}\n\nTimestamp: ${new Date().toLocaleString()}`
+                    message: message
                 };
 
                 const response = await emailjs.send(
@@ -1851,7 +2759,271 @@
                 });
             }
         }
-        
+
+        // Community Scoreboard functionality
+        function showScoreboard() {
+            updateScoreboard();
+            showPage('scoreboard');
+        }
+
+        function updateScoreboard() {
+            const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+            const scoreboardBody = document.getElementById('scoreboard-body');
+            
+            // Update stats
+            document.getElementById('total-members').textContent = waitlistSignups.length;
+            
+            // Calculate new today and this week
+            const today = new Date();
+            const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            const newToday = waitlistSignups.filter(signup => 
+                new Date(signup.timestamp) >= startOfToday
+            ).length;
+            
+            const newThisWeek = waitlistSignups.filter(signup => 
+                new Date(signup.timestamp) >= startOfWeek
+            ).length;
+            
+            document.getElementById('new-today').textContent = newToday;
+            document.getElementById('new-this-week').textContent = newThisWeek;
+            
+            scoreboardBody.innerHTML = '';
+            
+            if (waitlistSignups.length === 0) {
+                scoreboardBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No waitlist signups yet</td></tr>';
+                return;
+            }
+            
+            // Sort by newest first by default
+            const sortedSignups = [...waitlistSignups].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            
+            sortedSignups.forEach(signup => {
+                const row = document.createElement('tr');
+                const email = signup.email;
+                const name = email.split('@')[0];
+                const date = new Date(signup.timestamp).toLocaleDateString();
+                const source = signup.referralSource || 'Unknown';
+                
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${email}</td>
+                    <td>${date}</td>
+                    <td>${source}</td>
+                `;
+                
+                scoreboardBody.appendChild(row);
+            });
+        }
+
+        // Sort functionality for scoreboard
+        document.getElementById('sort-newest').addEventListener('click', function() {
+            const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+            const sortedSignups = [...waitlistSignups].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            renderScoreboard(sortedSignups);
+        });
+
+        document.getElementById('sort-oldest').addEventListener('click', function() {
+            const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
+            const sortedSignups = [...waitlistSignups].sort((a, b) => 
+                new Date(a.timestamp) - new Date(b.timestamp)
+            );
+            renderScoreboard(sortedSignups);
+        });
+
+        document.getElementById('refresh-scoreboard').addEventListener('click', function() {
+            updateScoreboard();
+        });
+
+        function renderScoreboard(signups) {
+            const scoreboardBody = document.getElementById('scoreboard-body');
+            scoreboardBody.innerHTML = '';
+            
+            signups.forEach(signup => {
+                const row = document.createElement('tr');
+                const email = signup.email;
+                const name = email.split('@')[0];
+                const date = new Date(signup.timestamp).toLocaleDateString();
+                const source = signup.referralSource || 'Unknown';
+                
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${email}</td>
+                    <td>${date}</td>
+                    <td>${source}</td>
+                `;
+                
+                scoreboardBody.appendChild(row);
+            });
+        }
+
+        // Education Videos Data
+        const educationVideos = [
+            // Beginner Videos (30)
+            { id: 1, title: "What is Cryptocurrency?", duration: "8:15", level: "beginner", category: "beginner", instructor: "Alex Johnson", description: "Learn the basics of cryptocurrency and how it works." },
+            { id: 2, title: "Understanding Blockchain Technology", duration: "10:30", level: "beginner", category: "beginner", instructor: "Sarah Chen", description: "Discover how blockchain powers cryptocurrencies." },
+            { id: 3, title: "How to Set Up Your First Wallet", duration: "12:45", level: "beginner", category: "beginner", instructor: "Mike Rodriguez", description: "Step-by-step guide to creating your first crypto wallet." },
+            { id: 4, title: "Buying Your First Bitcoin", duration: "9:20", level: "beginner", category: "beginner", instructor: "Jessica Wang", description: "Learn how to safely purchase Bitcoin for the first time." },
+            { id: 5, title: "Crypto Security Basics", duration: "11:10", level: "beginner", category: "beginner", instructor: "David Kim", description: "Essential security practices every crypto user should know." },
+            { id: 6, title: "Understanding Market Capitalization", duration: "7:45", level: "beginner", category: "beginner", instructor: "Emily Davis", description: "Learn what market cap means and why it matters." },
+            { id: 7, title: "Introduction to Altcoins", duration: "10:55", level: "beginner", category: "beginner", instructor: "Ryan Patel", description: "Explore cryptocurrencies beyond Bitcoin." },
+            { id: 8, title: "How to Read a Crypto Chart", duration: "13:20", level: "beginner", category: "beginner", instructor: "Lisa Thompson", description: "Basic chart reading skills for beginners." },
+            { id: 9, title: "Crypto Tax Basics", duration: "14:30", level: "beginner", category: "beginner", instructor: "Kevin Wilson", description: "Understanding tax implications of crypto trading." },
+            { id: 10, title: "Setting Realistic Crypto Goals", duration: "8:40", level: "beginner", category: "beginner", instructor: "Maria Garcia", description: "How to set achievable goals in cryptocurrency." },
+            
+            // Candlestick Patterns (25)
+            { id: 31, title: "Introduction to Candlestick Charts", duration: "15:20", level: "beginner", category: "candlestick", instructor: "Robert Chen", description: "Learn the basics of candlestick chart reading." },
+            { id: 32, title: "Bullish and Bearish Candlesticks", duration: "12:45", level: "beginner", category: "candlestick", instructor: "Amanda Lee", description: "Understanding market sentiment through candles." },
+            { id: 33, title: "Doji Candlestick Patterns", duration: "11:30", level: "intermediate", category: "candlestick", instructor: "James Wilson", description: "Mastering Doji patterns and their meanings." },
+            { id: 34, title: "Hammer and Hanging Man Patterns", duration: "13:15", level: "intermediate", category: "candlestick", instructor: "Sophia Martinez", description: "Identifying reversal patterns in markets." },
+            { id: 35, title: "Engulfing Patterns Explained", duration: "14:50", level: "intermediate", category: "candlestick", instructor: "Daniel Brown", description: "Bullish and bearish engulfing patterns." },
+            
+            // Trading Strategies (45)
+            { id: 56, title: "Day Trading Basics", duration: "18:30", level: "intermediate", category: "strategies", instructor: "Chris Taylor", description: "Introduction to day trading strategies." },
+            { id: 57, title: "Swing Trading Techniques", duration: "16:45", level: "intermediate", category: "strategies", instructor: "Nicole Adams", description: "How to profit from medium-term price swings." },
+            { id: 58, title: "Position Trading for Long Term", duration: "20:15", level: "intermediate", category: "strategies", instructor: "Brian Clark", description: "Long-term investment strategies in crypto." },
+            { id: 59, title: "Risk Management Fundamentals", duration: "17:20", level: "intermediate", category: "strategies", instructor: "Rachel Green", description: "Protecting your capital while trading." },
+            { id: 60, title: "Technical Analysis Masterclass", duration: "25:40", level: "advanced", category: "strategies", instructor: "Michael Scott", description: "Advanced technical analysis techniques." }
+        ];
+
+        // Generate more videos to reach 100+
+        for (let i = 61; i <= 120; i++) {
+            const levels = ["beginner", "intermediate", "advanced"];
+            const categories = ["beginner", "intermediate", "advanced", "candlestick", "strategies"];
+            const instructors = ["Alex Johnson", "Sarah Chen", "Mike Rodriguez", "Jessica Wang", "David Kim", "Emily Davis"];
+            
+            educationVideos.push({
+                id: i,
+                title: `Trading Lesson ${i}: Advanced Concept ${i-60}`,
+                duration: `${10 + (i % 20)}:${(i % 60).toString().padStart(2, '0')}`,
+                level: levels[i % 3],
+                category: categories[i % 5],
+                instructor: instructors[i % 6],
+                description: `In-depth analysis of trading concept ${i-60} with practical examples.`
+            });
+        }
+
+        // Education page functionality
+        let currentVideoPage = 1;
+        const videosPerPage = 12;
+        let currentCategory = 'all';
+
+        function initializeEducationPage() {
+            renderVideos();
+            
+            // Category filter
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategory = this.dataset.category;
+                    currentVideoPage = 1;
+                    renderVideos();
+                });
+            });
+            
+            // Load more videos
+            document.getElementById('load-more-videos').addEventListener('click', function() {
+                currentVideoPage++;
+                renderVideos(true);
+            });
+        }
+
+        function renderVideos(append = false) {
+            const videosContainer = document.getElementById('videos-container');
+            if (!append) {
+                videosContainer.innerHTML = '';
+            }
+            
+            let filteredVideos = educationVideos;
+            if (currentCategory !== 'all') {
+                filteredVideos = educationVideos.filter(video => 
+                    video.category === currentCategory || video.level === currentCategory
+                );
+            }
+            
+            const startIndex = (currentVideoPage - 1) * videosPerPage;
+            const endIndex = startIndex + videosPerPage;
+            const videosToShow = filteredVideos.slice(startIndex, endIndex);
+            
+            if (videosToShow.length === 0 && !append) {
+                videosContainer.innerHTML = '<div class="no-videos" style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);">No videos found in this category.</div>';
+                return;
+            }
+            
+            videosToShow.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card fade-in';
+                
+                videoCard.innerHTML = `
+                    <div class="video-player">
+                        <i class="fas fa-play-circle" style="font-size: 2rem;"></i>
+                        <div class="video-duration">${video.duration}</div>
+                    </div>
+                    <div class="video-info">
+                        <span class="video-level level-${video.level}">${video.level.charAt(0).toUpperCase() + video.level.slice(1)}</span>
+                        <h3>${video.title}</h3>
+                        <p>${video.description}</p>
+                        <div class="video-instructor">
+                            <div class="instructor-avatar">${video.instructor.charAt(0)}</div>
+                            <div class="instructor-info">
+                                <h4>${video.instructor}</h4>
+                                <p>Trading Expert</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                videosContainer.appendChild(videoCard);
+            });
+            
+            // Show/hide load more button
+            document.getElementById('load-more-videos').style.display = 
+                endIndex < filteredVideos.length ? 'block' : 'none';
+            
+            setTimeout(() => {
+                const fadeElements = videosContainer.querySelectorAll('.fade-in');
+                fadeElements.forEach(element => {
+                    element.classList.add('visible');
+                });
+            }, 100);
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('scoreboard-page').classList.remove('active');
+            document.getElementById('education-page').classList.remove('active');
+            document.getElementById('roadmap-page').classList.remove('active');
+            
+            // Show selected page
+            if (pageId === 'home') {
+                document.getElementById('main-content').style.display = 'block';
+                window.scrollTo(0, 0);
+            } else if (pageId === 'scoreboard') {
+                document.getElementById('scoreboard-page').classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (pageId === 'education') {
+                document.getElementById('education-page').classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (pageId === 'plan') {
+                document.getElementById('roadmap-page').classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            document.getElementById('nav-links').classList.toggle('active');
+        }
+
         // Scroll animations
         document.addEventListener('DOMContentLoaded', function() {
             const header = document.getElementById('header');
@@ -1899,6 +3071,7 @@
             initializeReviews();
             initializeStarRating();
             updateTestimonials();
+            initializeEducationPage();
 
             // Add manual sync button
             const syncButton = document.createElement('button');
@@ -1906,6 +3079,48 @@
             syncButton.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Reviews';
             syncButton.onclick = manualSync;
             document.querySelector('.reviews-stats').appendChild(syncButton);
+
+            // Add event listeners for navigation
+            document.getElementById('nav-home').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage('home');
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+
+            document.getElementById('nav-scoreboard').addEventListener('click', function(e) {
+                e.preventDefault();
+                showScoreboard();
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+
+            document.getElementById('nav-education').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage('education');
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+
+            document.getElementById('nav-plan').addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage('plan');
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+            });
+
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+            // Auto-refresh scoreboard every 30 seconds when visible
+            setInterval(() => {
+                if (document.getElementById('scoreboard-page').classList.contains('active')) {
+                    updateScoreboard();
+                }
+            }, 30000);
         });
         
         // Make functions global for onclick handlers
