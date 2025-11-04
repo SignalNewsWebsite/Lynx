@@ -1499,11 +1499,33 @@
             }
             
             .nav-links {
-                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(0, 0, 0, 0.95);
+                width: 100%;
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0;
+                transform: translateX(100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                z-index: 999;
+                pointer-events: none;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            }
+            
+            .nav-links.active {
+                transform: translateX(0);
+                opacity: 1;
+                pointer-events: all;
             }
             
             .mobile-menu-btn {
                 display: block;
+                z-index: 1000;
+                position: relative;
             }
             
             .videos-grid {
@@ -1643,36 +1665,16 @@
         }
         
         @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .nav-links {
-                position: fixed;
-                top: 70px;
-                right: 0;
-                background: rgba(0, 0, 0, 0.95);
-                width: 100%;
-                flex-direction: column;
-                padding: 1rem;
-                gap: 0;
-                transform: translateY(-100%);
-                opacity: 0;
-                transition: all 0.3s ease;
-                z-index: 999;
-            }
-            
-            .nav-links.active {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            
             .nav-link {
                 display: block;
                 padding: 1rem;
                 width: 100%;
                 text-align: center;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-link:last-child {
+                border-bottom: none;
             }
         }
     </style>
@@ -2903,343 +2905,162 @@
             });
         }
 
-        // Education Videos Data with YouTube IDs and actual titles
-        const educationVideos = [
-            // Beginner Videos
-            { 
-                id: 1, 
-                title: "How To Start Trading Cryptocurrency For Beginners", 
-                duration: "15:30", 
-                level: "beginner", 
-                category: "beginner", 
-                instructor: "Coin Bureau", 
-                description: "Complete beginner's guide to start trading cryptocurrency safely.",
-                youtubeId: "eV6OnVCj8U8"
-            },
-            { 
-                id: 2, 
-                title: "Cryptocurrency Trading For Beginners (Full Guide)", 
-                duration: "22:45", 
-                level: "beginner", 
-                category: "beginner", 
-                instructor: "BitBoy Crypto", 
-                description: "Step-by-step guide for beginners to start trading crypto.",
-                youtubeId: "vL5W9K9_6c0"
-            },
-            { 
-                id: 3, 
-                title: "How to Trade Cryptocurrency for Beginners", 
-                duration: "18:20", 
-                level: "beginner", 
-                category: "beginner", 
-                instructor: "InvestAnswers", 
-                description: "Learn the basics of cryptocurrency trading from scratch.",
-                youtubeId: "bX1jwWJUDw4"
-            },
-            { 
-                id: 4, 
-                title: "Crypto Trading Basics in 10 Minutes", 
-                duration: "10:15", 
-                level: "beginner", 
-                category: "beginner", 
-                instructor: "Whiteboard Crypto", 
-                description: "Quick overview of crypto trading fundamentals.",
-                youtubeId: "8hDm_h7Cy8A"
-            },
-            { 
-                id: 5, 
-                title: "The Ultimate Beginner's Guide To Cryptocurrency 2023", 
-                duration: "26:40", 
-                level: "beginner", 
-                category: "beginner", 
-                instructor: "Andrei Jikh", 
-                description: "Complete introduction to cryptocurrency for absolute beginners.",
-                youtubeId: "a6rsq2kax_4"
-            },
-            
-            // How Exchanges Work
-            { 
-                id: 6, 
-                title: "How Does A Crypto Exchange Work?", 
-                duration: "12:30", 
-                level: "beginner", 
-                category: "exchanges", 
-                instructor: "CoinGecko", 
-                description: "Understanding the mechanics behind cryptocurrency exchanges.",
-                youtubeId: "k38En9HrE_U"
-            },
-            { 
-                id: 7, 
-                title: "How Cryptocurrency Exchanges Work - Coinbase, Binance, etc", 
-                duration: "14:25", 
-                level: "intermediate", 
-                category: "exchanges", 
-                instructor: "99Bitcoins", 
-                description: "Detailed explanation of how major crypto exchanges operate.",
-                youtubeId: "K8qY8xJXv_c"
-            },
-            { 
-                id: 8, 
-                title: "How Do Crypto Exchanges Make Money?", 
-                duration: "11:50", 
-                level: "intermediate", 
-                category: "exchanges", 
-                instructor: "Coin Bureau", 
-                description: "Exploring the business models of cryptocurrency exchanges.",
-                youtubeId: "9lKf_rBaX_8"
-            },
-            { 
-                id: 9, 
-                title: "Centralized vs Decentralized Exchanges Explained", 
-                duration: "16:40", 
-                level: "intermediate", 
-                category: "exchanges", 
-                instructor: "Finematics", 
-                description: "Understanding the differences between CEX and DEX.",
-                youtubeId: "k38En9HrE_U"
-            },
-            { 
-                id: 10, 
-                title: "How Order Books Work on Crypto Exchanges", 
-                duration: "19:15", 
-                level: "intermediate", 
-                category: "exchanges", 
-                instructor: "JRNY Crypto", 
-                description: "Deep dive into order book mechanics and market making.",
-                youtubeId: "P0bHGtnW+_4"
-            },
-            
-            // Candlestick Patterns
-            { 
-                id: 11, 
-                title: "The Only Candlestick Patterns Trading Video You Will Ever Need", 
-                duration: "28:30", 
-                level: "intermediate", 
-                category: "candlestick", 
-                instructor: "Trade Pro", 
-                description: "Complete guide to all major candlestick patterns.",
-                youtubeId: "c6u-9MlQdUc"
-            },
-            { 
-                id: 12, 
-                title: "Ultimate Candlestick Patterns Trading Course (PRO INSTANTLY)", 
-                duration: "35:20", 
-                level: "intermediate", 
-                category: "candlestick", 
-                instructor: "Wysetrade", 
-                description: "Professional candlestick pattern recognition and trading.",
-                youtubeId: "VV9_4efvT4E"
-            },
-            { 
-                id: 13, 
-                title: "10 Most Powerful Candlestick Patterns For Trading", 
-                duration: "24:15", 
-                level: "intermediate", 
-                category: "candlestick", 
-                instructor: "Trade With Trend", 
-                description: "Learn the most reliable candlestick patterns for profitable trading.",
-                youtubeId: "WPGH3X0y1cE"
-            },
-            { 
-                id: 14, 
-                title: "Candlestick Patterns Every Trader Should Know", 
-                duration: "19:45", 
-                level: "beginner", 
-                category: "candlestick", 
-                instructor: "Rayner Teo", 
-                description: "Essential candlestick patterns for beginner traders.",
-                youtubeId: "vT2wR1DjORE"
-            },
-            { 
-                id: 15, 
-                title: "Advanced Candlestick Patterns For Professional Trading", 
-                duration: "32:10", 
-                level: "advanced", 
-                category: "candlestick", 
-                instructor: "Tradeciety", 
-                description: "Advanced candlestick patterns used by professional traders.",
-                youtubeId: "8g4QrLr8Y9w"
-            },
-            
-            // Trading Strategies
-            { 
-                id: 16, 
-                title: "5 Best Crypto Trading Strategies That Work", 
-                duration: "25:40", 
-                level: "intermediate", 
-                category: "strategies", 
-                instructor: "Crypto Rover", 
-                description: "Proven trading strategies for cryptocurrency markets.",
-                youtubeId: "7d7O6wNsi_0"
-            },
-            { 
-                id: 17, 
-                title: "The Ultimate Scalping Strategy Guide For Crypto Trading", 
-                duration: "29:15", 
-                level: "advanced", 
-                category: "strategies", 
-                instructor: "Trade With Precision", 
-                description: "Complete scalping strategy for fast-paced crypto trading.",
-                youtubeId: "Q7Dq3Tly7_w"
-            },
-            { 
-                id: 18, 
-                title: "Swing Trading Cryptocurrency - Complete Strategy Guide", 
-                duration: "31:20", 
-                level: "intermediate", 
-                category: "strategies", 
-                instructor: "The Trading Channel", 
-                description: "Complete swing trading strategy for cryptocurrency markets.",
-                youtubeId: "Yt5E0duK_9U"
-            },
-            { 
-                id: 19, 
-                title: "Day Trading Strategy For Cryptocurrency Beginners", 
-                duration: "27:50", 
-                level: "beginner", 
-                category: "strategies", 
-                instructor: "Humbled Trader", 
-                description: "Simple day trading strategy perfect for crypto beginners.",
-                youtubeId: "3kdmK9m_qi8"
-            },
-            { 
-                id: 20, 
-                title: "Position Trading Strategy For Long-Term Crypto Gains", 
-                duration: "33:25", 
-                level: "intermediate", 
-                category: "strategies", 
-                instructor: "Investing with Rose", 
-                description: "Long-term position trading strategy for crypto investors.",
-                youtubeId: "vXf7gK2cQ4s"
-            },
-            
-            // Intermediate Trading
-            { 
-                id: 21, 
-                title: "Technical Analysis Masterclass For Crypto Trading", 
-                duration: "42:30", 
-                level: "intermediate", 
-                category: "intermediate", 
-                instructor: "CryptoCred", 
-                description: "Complete technical analysis course for crypto traders.",
-                youtubeId: "k8jG_6_cB3c"
-            },
-            { 
-                id: 22, 
-                title: "Risk Management For Crypto Trading - Complete Guide", 
-                duration: "26:15", 
-                level: "intermediate", 
-                category: "intermediate", 
-                instructor: "Tradeciety", 
-                description: "Essential risk management techniques for crypto traders.",
-                youtubeId: "vXf7gK2cQ4s"
-            },
-            { 
-                id: 23, 
-                title: "How To Use TradingView For Crypto Trading", 
-                duration: "35:40", 
-                level: "intermediate", 
-                category: "intermediate", 
-                instructor: "Trade With Trend", 
-                description: "Master TradingView for advanced crypto analysis.",
-                youtubeId: "3kdmK9m_qi8"
-            },
-            { 
-                id: 24, 
-                title: "Market Psychology For Crypto Traders", 
-                duration: "28:20", 
-                level: "intermediate", 
-                category: "intermediate", 
-                instructor: "The Duomo Initiative", 
-                description: "Understanding market psychology and trader behavior.",
-                youtubeId: "Yt5E0duK_9U"
-            },
-            { 
-                id: 25, 
-                title: "Building A Crypto Trading Plan That Works", 
-                duration: "31:50", 
-                level: "intermediate", 
-                category: "intermediate", 
-                instructor: "Rayner Teo", 
-                description: "Creating a comprehensive trading plan for consistent profits.",
-                youtubeId: "7d7O6wNsi_0"
-            },
-            
-            // Advanced Trading
-            { 
-                id: 26, 
-                title: "Advanced Order Types For Professional Crypto Trading", 
-                duration: "38:25", 
-                level: "advanced", 
-                category: "advanced", 
-                instructor: "Altonomics", 
-                description: "Master advanced order types for professional trading.",
-                youtubeId: "Q7Dq3Tly7_w"
-            },
-            { 
-                id: 27, 
-                title: "Algorithmic Trading Strategies For Cryptocurrency", 
-                duration: "45:15", 
-                level: "advanced", 
-                category: "advanced", 
-                instructor: "Robot Wealth", 
-                description: "Introduction to algorithmic trading for crypto markets.",
-                youtubeId: "8g4QrLr8Y9w"
-            },
-            { 
-                id: 28, 
-                title: "Advanced Risk Management For Professional Traders", 
-                duration: "39:40", 
-                level: "advanced", 
-                category: "advanced", 
-                instructor: "The Art of Trading", 
-                description: "Advanced risk management techniques for professionals.",
-                youtubeId: "VV9_4efvT4E"
-            },
-            { 
-                id: 29, 
-                title: "Institutional Trading Strategies Revealed", 
-                duration: "47:20", 
-                level: "advanced", 
-                category: "advanced", 
-                instructor: "SMB Capital", 
-                description: "Learn trading strategies used by institutional traders.",
-                youtubeId: "c6u-9MlQdUc"
-            },
-            { 
-                id: 30, 
-                title: "Advanced Market Making Strategies", 
-                duration: "52:10", 
-                level: "advanced", 
-                category: "advanced", 
-                instructor: "Al Brooks", 
-                description: "Professional market making strategies for liquid markets.",
-                youtubeId: "WPGH3X0y1cE"
-            }
+        // Real YouTube video IDs - metadata will be fetched dynamically
+        const realVideoIds = [
+            "m4WOwgUMQuc",
+            "_I1omSmy44Q",
+            "HYoQYCBW4sw",
+            "lEk4cSA7cqc",
+            "evAJW38orgM",
+            "aESqgxYnfv4",
+            "UU4ZQF-X9jE",
+            "tW13N4Hll88",
+            "5pX5ZFXp6ok",
+            "AOz1YPOKvEs",
+            "Um-pFBgogpc",
+            "qDy17Hx4arg",
+            "knRBKrVEPsU",
+            "_tMzs9cD-4g",
+            "o1S_w9o34Ao",
+            "p47HZv1fcUM",
+            "XniK10GsmwA",
+            "2Sn-yI9eL9M",
+            "iYpYWnkUy4c",
+            "FxWRafXqMhE",
+            "ABGSPvJWx4A",
+            "b3AM7EMfC90",
+            "fu1-y06USYk",
+            "oQs6wJFK9pI",
+            "pwtTgvi0Wpo",
+            "6N9Mw4wWwm4",
+            "AUFOr9qWnhs",
+            "qOVAbKKSH10",
+            "gyMwXuJrbJQ",
+            "-mWjDgVWl20",
+            "6GaoGQK6gqQ",
+            "Czmg9WmSCcI",
+            "TZcfQtBXthc",
+            "SCVhiG1NUrw",
+            "NRYrU3FVruY",
+            "58om-oA1vpI",
+            "SSo_EIwHSd4",
+            "hYip_Vuv8J0",
+            "ZE2HxTmxfrI",
+            "jcgfQEbptdo",
+            "yv-wJ1toBR0",
+            "Sl7JE3INcvM",
+            "bBC-nXj3Ng4",
+            "41JCpzvnn_0",
+            "TDGq4aeevgY",
+            "Lx9zgZCMqXE",
+            "2uYuWiICCM0",
+            "4T3Y5b2y3Sc",
+            "UwMZJ6aH4n8",
+            "-1GB6m39-rM",
+            "M576WGiDBdQ",
+            "V6Yqr7prI2I"
         ];
 
-        // Generate more videos to reach 100+
-        for (let i = 31; i <= 120; i++) {
-            const levels = ["beginner", "intermediate", "advanced"];
-            const categories = ["beginner", "intermediate", "advanced", "candlestick", "strategies", "exchanges"];
-            const instructors = ["Alex Johnson", "Sarah Chen", "Mike Rodriguez", "Jessica Wang", "David Kim", "Emily Davis"];
-            const youtubeIds = [
-                "eV6OnVCj8U8", "vL5W9K9_6c0", "bX1jwWJUDw4", "8hDm_h7Cy8A", "a6rsq2kax_4",
-                "k38En9HrE_U", "K8qY8xJXv_c", "9lKf_rBaX_8", "P0bHGtnW+_4", "c6u-9MlQdUc",
-                "VV9_4efvT4E", "WPGH3X0y1cE", "vT2wR1DjORE", "8g4QrLr8Y9w", "7d7O6wNsi_0",
-                "Q7Dq3Tly7_w", "Yt5E0duK_9U", "3kdmK9m_qi8", "vXf7gK2cQ4s", "k8jG_6_cB3c"
-            ];
+        // Education videos array - will be populated with real metadata
+        let educationVideos = [];
+
+        // Fetch video metadata from YouTube using noembed (CORS-friendly)
+        async function fetchVideoMetadata(youtubeId) {
+            try {
+                // Use noembed.com as a CORS-friendly proxy for YouTube oEmbed
+                const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${youtubeId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch video metadata');
+                }
+                const data = await response.json();
+                return {
+                    title: data.title || "Video Title",
+                    thumbnail: data.thumbnail_url || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+                    author: data.author_name || "Unknown Channel",
+                    authorUrl: data.author_url || ""
+                };
+            } catch (error) {
+                console.error(`Error fetching metadata for video ${youtubeId}:`, error);
+                // Fallback: use YouTube thumbnail URL directly
+                return {
+                    title: "Video Title",
+                    thumbnail: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+                    author: "Unknown Channel",
+                    authorUrl: ""
+                };
+            }
+        }
+
+        // Initialize videos with real metadata
+        let isVideoDataLoading = false;
+        let videoDataLoaded = false;
+        
+        async function initializeVideoData() {
+            if (isVideoDataLoading || videoDataLoaded) {
+                return;
+            }
             
-            educationVideos.push({
-                id: i,
-                title: `Advanced Trading Concept ${i-30}: Market Analysis Techniques`,
-                duration: `${15 + (i % 30)}:${(i % 60).toString().padStart(2, '0')}`,
-                level: levels[i % 3],
-                category: categories[i % 6],
-                instructor: instructors[i % 6],
-                description: `In-depth analysis of trading concept ${i-30} with practical examples.`,
-                youtubeId: youtubeIds[i % youtubeIds.length]
-            });
+            isVideoDataLoading = true;
+            educationVideos = [];
+            
+            // Show loading message
+            const videosContainer = document.getElementById('videos-container');
+            if (videosContainer) {
+                videosContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.6);"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i><p>Loading video information...</p></div>';
+            }
+            
+            // Fetch metadata for all videos (with small delay to avoid rate limiting)
+            for (let i = 0; i < realVideoIds.length; i++) {
+                const youtubeId = realVideoIds[i];
+                const metadata = await fetchVideoMetadata(youtubeId);
+                
+                // Determine level and category based on video content
+                let level = "beginner";
+                let category = "beginner";
+                const titleLower = metadata.title.toLowerCase();
+                
+                if (titleLower.includes("advanced") || titleLower.includes("expert") || titleLower.includes("professional")) {
+                    level = "advanced";
+                    category = "advanced";
+                } else if (titleLower.includes("intermediate") || titleLower.includes("masterclass") || titleLower.includes("course") || titleLower.includes("full course")) {
+                    level = "intermediate";
+                    category = "intermediate";
+                }
+                
+                if (titleLower.includes("strategy") || titleLower.includes("strategies") || titleLower.includes("trading") || titleLower.includes("live trading")) {
+                    category = "strategies";
+                } else if (titleLower.includes("candlestick") || titleLower.includes("chart")) {
+                    category = "candlestick";
+                } else if (titleLower.includes("exchange") || titleLower.includes("blockchain") || titleLower.includes("smart contract") || titleLower.includes("solidity") || titleLower.includes("web3")) {
+                    category = "exchanges";
+                }
+                
+                educationVideos.push({
+                    id: i + 1,
+                    title: metadata.title,
+                    duration: "",
+                    level: level,
+                    category: category,
+                    instructor: metadata.author,
+                    description: metadata.title,
+                    youtubeId: youtubeId,
+                    thumbnail: metadata.thumbnail,
+                    authorUrl: metadata.authorUrl
+                });
+                
+                // Small delay to avoid overwhelming the API
+                if (i < realVideoIds.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            videoDataLoaded = true;
+            isVideoDataLoading = false;
+            
+            // Re-render videos with real data
+            if (videosContainer) {
+                renderVideos();
+            }
         }
 
         // Education page functionality
@@ -3248,7 +3069,12 @@
         let currentCategory = 'all';
 
         function initializeEducationPage() {
-            renderVideos();
+            // Initialize video data if not already loaded
+            if (educationVideos.length === 0) {
+                initializeVideoData();
+            } else {
+                renderVideos();
+            }
             
             // Category filter
             document.querySelectorAll('.category-btn').forEach(btn => {
@@ -3294,28 +3120,31 @@
                 const videoCard = document.createElement('div');
                 videoCard.className = 'video-card fade-in';
                 
-                // YouTube thumbnail URL
-                const thumbnailUrl = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
+                // Use real thumbnail from YouTube if available, otherwise fallback
+                const thumbnailUrl = video.thumbnail || `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
+                
+                // Get first letter of channel name for avatar
+                const channelInitial = video.instructor && video.instructor.length > 0 ? video.instructor.charAt(0).toUpperCase() : '?';
                 
                 videoCard.innerHTML = `
                     <div class="video-thumbnail">
-                        <img src="${thumbnailUrl}" alt="${video.title}">
+                        <img src="${thumbnailUrl}" alt="${video.title}" loading="lazy" onerror="this.src='https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg'">
                         <div class="video-play-overlay">
                             <div class="play-icon">
                                 <i class="fas fa-play"></i>
                             </div>
                         </div>
-                        <div class="video-duration">${video.duration}</div>
+                        ${video.duration && video.duration !== 'Loading...' ? `<div class="video-duration">${video.duration}</div>` : ''}
                     </div>
                     <div class="video-info">
                         <span class="video-level level-${video.level}">${video.level.charAt(0).toUpperCase() + video.level.slice(1)}</span>
                         <h3>${video.title}</h3>
-                        <p>${video.description}</p>
+                        <p>${video.description || video.title}</p>
                         <div class="video-instructor">
-                            <div class="instructor-avatar">${video.instructor.charAt(0)}</div>
+                            <div class="instructor-avatar">${channelInitial}</div>
                             <div class="instructor-info">
-                                <h4>${video.instructor}</h4>
-                                <p>Trading Expert</p>
+                                <h4>${video.instructor || 'Unknown Channel'}</h4>
+                                <p>YouTube Creator</p>
                             </div>
                         </div>
                     </div>
@@ -3359,6 +3188,10 @@
             } else if (pageId === 'education') {
                 document.getElementById('education-page').classList.add('active');
                 window.scrollTo(0, 0);
+                // Initialize video data when education page is shown
+                if (educationVideos.length === 0) {
+                    initializeVideoData();
+                }
             } else if (pageId === 'plan') {
                 document.getElementById('roadmap-page').classList.add('active');
                 window.scrollTo(0, 0);
@@ -3367,8 +3200,31 @@
 
         // Mobile menu functionality
         function toggleMobileMenu() {
-            document.getElementById('nav-links').classList.toggle('active');
+            const navLinks = document.getElementById('nav-links');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const isActive = navLinks.classList.toggle('active');
+            
+            // Change icon from bars to X when menu is open
+            if (isActive) {
+                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
+                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
         }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navLinks = document.getElementById('nav-links');
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && navLinks.classList.contains('active')) {
+                // Check if click is outside the menu and button
+                if (!navLinks.contains(event.target) && !menuBtn.contains(event.target)) {
+                    navLinks.classList.remove('active');
+                    menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            }
+        });
 
         // Scroll animations
         document.addEventListener('DOMContentLoaded', function() {
@@ -3427,36 +3283,37 @@
             document.querySelector('.reviews-stats').appendChild(syncButton);
 
             // Add event listeners for navigation
+            const closeMobileMenu = function() {
+                if (window.innerWidth <= 768) {
+                    const navLinks = document.getElementById('nav-links');
+                    const menuBtn = document.getElementById('mobile-menu-btn');
+                    navLinks.classList.remove('active');
+                    menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+            };
+
             document.getElementById('nav-home').addEventListener('click', function(e) {
                 e.preventDefault();
                 showPage('home');
-                if (window.innerWidth <= 768) {
-                    toggleMobileMenu();
-                }
+                closeMobileMenu();
             });
 
             document.getElementById('nav-scoreboard').addEventListener('click', function(e) {
                 e.preventDefault();
                 showScoreboard();
-                if (window.innerWidth <= 768) {
-                    toggleMobileMenu();
-                }
+                closeMobileMenu();
             });
 
             document.getElementById('nav-education').addEventListener('click', function(e) {
                 e.preventDefault();
                 showPage('education');
-                if (window.innerWidth <= 768) {
-                    toggleMobileMenu();
-                }
+                closeMobileMenu();
             });
 
             document.getElementById('nav-plan').addEventListener('click', function(e) {
                 e.preventDefault();
                 showPage('plan');
-                if (window.innerWidth <= 768) {
-                    toggleMobileMenu();
-                }
+                closeMobileMenu();
             });
 
             document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
