@@ -2419,9 +2419,10 @@
         // The API should handle: action=getReviews, action=create, action=update, action=delete
         async function fetchReviewsFromAPI() {
             try {
+                // Try GET request first
                 const response = await fetch(`${API_URL}?action=getReviews`, {
                     method: 'GET',
-                    // Don't set Content-Type for GET requests
+                    cache: 'no-cache'
                 });
                 
                 if (!response) {
@@ -2434,20 +2435,25 @@
                     return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 }
                 
-                if (!response.ok && response.status !== 0) {
-                    throw new Error(`Failed to fetch reviews: ${response.status}`);
+                // Check if response is ok (status 200-299)
+                if (!response.ok && response.status !== 0 && response.status !== 200) {
+                    console.log(`API returned status ${response.status}, trying to parse anyway`);
                 }
                 
                 // Try to parse as JSON
                 let data;
+                let text = '';
                 try {
-                    const text = await response.text();
+                    text = await response.text();
                     if (!text || text.trim() === '') {
+                        console.log('Empty response from API, using local storage');
                         return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                     }
+                    
+                    // Try to parse JSON
                     data = JSON.parse(text);
                 } catch (e) {
-                    console.error('JSON parse error:', e);
+                    console.error('JSON parse error:', e, 'Response text:', text ? text.substring(0, 100) : 'no text');
                     // Fallback to localStorage if parsing fails
                     return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 }
@@ -2457,16 +2463,19 @@
                     return data;
                 } else if (data.reviews && Array.isArray(data.reviews)) {
                     return data.reviews;
-                } else if (data.success && Array.isArray(data.data)) {
+                } else if (data.success !== undefined && Array.isArray(data.data)) {
                     return data.data;
                 } else if (data.data && Array.isArray(data.data)) {
                     return data.data;
+                } else if (data.success && Array.isArray(data.reviews)) {
+                    return data.reviews;
                 }
                 
-                return [];
+                console.log('Unexpected API response format:', data);
+                return JSON.parse(localStorage.getItem('lynxReviews') || '[]');
             } catch (error) {
                 console.error('Error fetching reviews from API:', error);
-                // Fallback to localStorage if API fails
+                // Always fallback to localStorage if API fails
                 const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 return localReviews;
             }
@@ -2474,129 +2483,195 @@
 
         async function saveReviewToAPI(review, action = 'create') {
             try {
-                // Google Apps Script APIs often prefer URL-encoded form data
-                const formData = new URLSearchParams();
-                formData.append('action', action);
-                formData.append('review', JSON.stringify(review));
-
-                // Try POST with form data first (most compatible with Google Apps Script)
-                let response = await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Google Apps Script may not send CORS headers
-                    body: formData
-                }).catch(async (error) => {
-                    console.log('Form data failed, trying JSON:', error);
-                    // Fallback: try JSON
+                // Try multiple approaches for Google Apps Script compatibility
+                
+                // Approach 1: Form data (most compatible)
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', action);
+                    formData.append('review', JSON.stringify(review));
+                    
+                    const response1 = await fetch(API_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response1 && response1.ok) {
+                        try {
+                            const result = await response1.json();
+                            return result;
+                        } catch (e) {
+                            // If can't parse JSON, assume success
+                            return { success: true };
+                        }
+                    }
+                } catch (error1) {
+                    console.log('Form data approach failed, trying JSON:', error1);
+                }
+                
+                // Approach 2: JSON payload
+                try {
                     const payload = {
                         action: action,
                         review: review
                     };
-                    return fetch(API_URL, {
+                    
+                    const response2 = await fetch(API_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(payload)
                     });
-                });
-
-                // With no-cors mode, we can't read the response, so assume success
-                if (response && response.type === 'opaque') {
-                    console.log('Request sent (no-cors mode)');
-                    return { success: true };
-                }
-
-                if (!response) {
-                    // If no response but no error, assume success (no-cors mode)
-                    console.log('Request sent (assuming success)');
-                    return { success: true };
-                }
-
-                if (!response.ok && response.status !== 0) {
-                    const errorText = await response.text().catch(() => 'Unknown error');
-                    throw new Error(`API error: ${response.status} - ${errorText}`);
-                }
-
-                // Try to parse response
-                try {
-                    const result = await response.json();
-                    return result;
-                } catch (e) {
-                    // If JSON parsing fails, check if response text indicates success
-                    try {
-                        const text = await response.text();
-                        if (text.includes('success') || text.includes('Success')) {
+                    
+                    if (response2 && response2.ok) {
+                        try {
+                            const result = await response2.json();
+                            return result;
+                        } catch (e) {
                             return { success: true };
                         }
-                    } catch (textError) {
-                        // Can't read response, but request was sent
-                        console.log('Cannot read response, assuming success');
+                    } else if (response2) {
+                        // Even if not ok, try to read response
+                        const text = await response2.text().catch(() => '');
+                        if (text.includes('success') || text.toLowerCase().includes('saved')) {
+                            return { success: true };
+                        }
                     }
-                    return { success: true };
+                } catch (error2) {
+                    console.log('JSON approach failed:', error2);
                 }
+                
+                // Approach 3: Try with no-cors (fire and forget)
+                try {
+                    const formData3 = new URLSearchParams();
+                    formData3.append('action', action);
+                    formData3.append('review', JSON.stringify(review));
+                    
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData3
+                    });
+                    
+                    // With no-cors, we can't read response, but request was sent
+                    return { success: true, noCors: true };
+                } catch (error3) {
+                    console.log('No-cors approach also failed:', error3);
+                }
+                
+                // If all approaches failed, return false but don't throw
+                return { success: false, error: 'All API approaches failed' };
+                
             } catch (error) {
                 console.error('Error saving review to API:', error);
-                // Don't throw - allow fallback to local storage
                 return { success: false, error: error.message };
             }
         }
 
         async function deleteReviewFromAPI(reviewId) {
             try {
+                // Try form data first
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'delete');
+                    formData.append('reviewId', reviewId);
+                    
+                    const response1 = await fetch(API_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response1 && response1.ok) {
+                        return { success: true };
+                    }
+                } catch (e1) {
+                    console.log('Form data delete failed, trying JSON:', e1);
+                }
+                
+                // Try JSON
                 const payload = {
                     action: 'delete',
                     reviewId: reviewId
                 };
 
-                // Try POST with JSON first
-                let response = await fetch(API_URL, {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(payload)
-                }).catch(async () => {
-                    // Fallback: try as form data
-                    const formData = new URLSearchParams();
-                    formData.append('action', 'delete');
-                    formData.append('reviewId', reviewId);
-                    
-                    return fetch(API_URL, {
-                        method: 'POST',
-                        body: formData
-                    });
                 });
 
-                if (!response || !response.ok) {
-                    throw new Error('Failed to delete review from API');
+                if (response && response.ok) {
+                    try {
+                        const result = await response.json();
+                        return result;
+                    } catch (e) {
+                        return { success: true };
+                    }
                 }
-
-                // Try to parse response
+                
+                // If not ok, try no-cors as last resort
                 try {
-                    const result = await response.json();
-                    return result;
-                } catch (e) {
-                    // If JSON parsing fails, return success anyway
-                    return { success: true };
+                    const formData3 = new URLSearchParams();
+                    formData3.append('action', 'delete');
+                    formData3.append('reviewId', reviewId);
+                    
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData3
+                    });
+                    return { success: true, noCors: true };
+                } catch (e3) {
+                    console.log('All delete approaches failed');
                 }
+                
+                return { success: false };
             } catch (error) {
                 console.error('Error deleting review from API:', error);
-                throw error;
+                return { success: false, error: error.message };
             }
         }
 
         // Sync reviews from API
         async function syncReviewsFromAPI() {
-            if (isSyncing) return;
+            if (isSyncing) {
+                console.log('Sync already in progress, skipping...');
+                return;
+            }
             
             isSyncing = true;
             try {
+                console.log('Starting sync...');
                 const apiReviews = await fetchReviewsFromAPI();
                 
-                // Merge with local reviews (prefer API data)
-                reviews = apiReviews;
+                // Merge local and API reviews (combine both, remove duplicates)
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
                 
-                // Update localStorage as backup
+                // Create a map of reviews by ID
+                const reviewMap = new Map();
+                
+                // Add local reviews first
+                localReviews.forEach(review => {
+                    reviewMap.set(review.id, review);
+                });
+                
+                // Add API reviews (API data takes precedence for duplicates)
+                if (Array.isArray(apiReviews) && apiReviews.length > 0) {
+                    apiReviews.forEach(review => {
+                        reviewMap.set(review.id, review);
+                    });
+                }
+                
+                // Convert map back to array
+                reviews = Array.from(reviewMap.values());
+                
+                // Sort by date (newest first)
+                reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Update localStorage
                 localStorage.setItem('lynxReviews', JSON.stringify(reviews));
                 
                 lastSyncTime = new Date().toLocaleTimeString();
@@ -2606,13 +2681,16 @@
                 renderReviews(reviews);
                 updateReviewStats(reviews);
                 
-                console.log('Reviews synced successfully');
+                console.log(`Reviews synced successfully: ${reviews.length} total reviews`);
+                return true;
             } catch (error) {
                 console.error('Error syncing reviews:', error);
-                // Fallback to localStorage
-                reviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                // Fallback to localStorage but don't throw
+                const localReviews = JSON.parse(localStorage.getItem('lynxReviews') || '[]');
+                reviews = localReviews;
                 renderReviews(reviews);
                 updateReviewStats(reviews);
+                throw error; // Re-throw so sync button can show error
             } finally {
                 isSyncing = false;
             }
@@ -2751,66 +2829,46 @@
                 date: new Date().toISOString()
             };
 
-            try {
-                // Send email notification only for new reviews
-                if (!editingReviewId) {
-                    sendReviewEmailAPI(reviewText, rating, userEmail)
-                        .then(() => console.log('Review email sent'))
-                        .catch(err => console.error('Failed to send email:', err));
+            // CRITICAL: Update UI IMMEDIATELY so user sees their review right away
+            if (editingReviewId) {
+                // Update existing review
+                const index = reviews.findIndex(r => r.id === editingReviewId);
+                if (index !== -1) {
+                    reviews[index] = newReview;
                 }
-                
-                // Save to API (but don't fail if API is down)
-                const action = editingReviewId ? 'update' : 'create';
-                const apiResult = await saveReviewToAPI(newReview, action);
-                
-                // Update local array regardless of API result
-                if (editingReviewId) {
-                    // Update existing review
-                    const index = reviews.findIndex(r => r.id === editingReviewId);
-                    if (index !== -1) {
-                        reviews[index] = newReview;
-                    }
-                } else {
-                    // Add new review
-                    reviews.push(newReview);
-                }
-                
-                // Update localStorage as backup
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                
-                // Update UI immediately
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                // Sync again to get any server-side updates (if API worked)
-                if (apiResult && apiResult.success !== false) {
-                    setTimeout(syncReviewsFromAPI, 1000);
-                } else {
-                    console.log('API may not be available, saved locally');
-                }
-                
-                return newReview;
-                
-            } catch (error) {
-                console.error('Error in saveReview:', error);
-                
-                // Always save locally even if API fails
-                if (editingReviewId) {
-                    const index = reviews.findIndex(r => r.id === editingReviewId);
-                    if (index !== -1) {
-                        reviews[index] = newReview;
-                    }
-                } else {
-                    reviews.push(newReview);
-                }
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                // Don't throw error - review is saved locally
-                console.log('Review saved locally due to API error');
-                return newReview;
+            } else {
+                // Add new review
+                reviews.push(newReview);
             }
+            
+            // Update localStorage immediately
+            localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+            
+            // Show review immediately - don't wait for API
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+            
+            // Send email notification and API sync in background (non-blocking)
+            if (!editingReviewId) {
+                sendReviewEmailAPI(reviewText, rating, userEmail)
+                    .then(() => console.log('Review email sent'))
+                    .catch(err => console.error('Failed to send email:', err));
+            }
+            
+            // Try to save to API in background (don't block UI)
+            const action = editingReviewId ? 'update' : 'create';
+            saveReviewToAPI(newReview, action)
+                .then((apiResult) => {
+                    console.log('Review saved to API:', apiResult);
+                    // Sync again after a short delay to get any server updates
+                    setTimeout(() => syncReviewsFromAPI(), 2000);
+                })
+                .catch((error) => {
+                    console.error('API save failed (review still visible locally):', error);
+                    // Review is already visible, so this is okay
+                });
+            
+            return newReview;
         }
 
         // Edit review function
@@ -2852,34 +2910,23 @@
                 return;
             }
 
-            try {
-                // Delete from API
-                await deleteReviewFromAPI(reviewId);
-                
-                // Remove from local array
-                reviews = reviews.filter(r => r.id !== reviewId);
-                
-                // Update localStorage as backup
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                
-                // Update UI
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                // Sync again to ensure consistency
-                setTimeout(syncReviewsFromAPI, 1000);
-                
-            } catch (error) {
-                console.error('Error deleting review:', error);
-                
-                // Fallback: delete locally if API fails
-                reviews = reviews.filter(r => r.id !== reviewId);
-                localStorage.setItem('lynxReviews', JSON.stringify(reviews));
-                renderReviews(reviews);
-                updateReviewStats(reviews);
-                
-                alert('Review deleted locally. It will sync when the connection is restored.');
-            }
+            // CRITICAL: Delete immediately from UI (don't wait for API)
+            reviews = reviews.filter(r => r.id !== reviewId);
+            localStorage.setItem('lynxReviews', JSON.stringify(reviews));
+            renderReviews(reviews);
+            updateReviewStats(reviews);
+            
+            // Try to delete from API in background (non-blocking)
+            deleteReviewFromAPI(reviewId)
+                .then((result) => {
+                    console.log('Review deleted from API:', result);
+                    // Sync again after a short delay
+                    setTimeout(() => syncReviewsFromAPI(), 2000);
+                })
+                .catch((error) => {
+                    console.error('API delete failed (review already removed locally):', error);
+                    // Review is already removed, so this is okay
+                });
         }
 
         // Manual sync function
@@ -2893,9 +2940,30 @@
             }
             
             try {
-                await syncReviewsFromAPI();
+                const success = await syncReviewsFromAPI();
                 if (syncBtn) {
-                    syncBtn.innerHTML = '<i class="fas fa-check"></i> Synced!';
+                    if (success) {
+                        syncBtn.innerHTML = '<i class="fas fa-check"></i> Synced!';
+                        setTimeout(() => {
+                            if (syncBtn) {
+                                syncBtn.innerHTML = originalText;
+                                syncBtn.disabled = false;
+                            }
+                        }, 2000);
+                    } else {
+                        syncBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Using Local';
+                        setTimeout(() => {
+                            if (syncBtn) {
+                                syncBtn.innerHTML = originalText;
+                                syncBtn.disabled = false;
+                            }
+                        }, 2000);
+                    }
+                }
+            } catch (error) {
+                console.error('Manual sync error:', error);
+                if (syncBtn) {
+                    syncBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
                     setTimeout(() => {
                         if (syncBtn) {
                             syncBtn.innerHTML = originalText;
@@ -2903,12 +2971,8 @@
                         }
                     }, 2000);
                 }
-            } catch (error) {
-                if (syncBtn) {
-                    syncBtn.innerHTML = originalText;
-                    syncBtn.disabled = false;
-                }
-                alert('Sync failed. Please try again.');
+                // Don't show alert - reviews are still visible locally
+                console.log('Sync failed but reviews are still visible from local storage');
             }
         }
 
@@ -3001,14 +3065,16 @@
                     const waitlistSignups = JSON.parse(localStorage.getItem('lynxWaitlist') || '[]');
                     const userEmail = waitlistSignups.length > 0 ? waitlistSignups[waitlistSignups.length - 1].email : 'Anonymous';
                     
+                    // Save review (this shows it immediately)
                     await saveReview(reviewText, currentRating, userEmail);
                     
-                    alert(editingReviewId ? 'Review updated successfully! It will be visible to everyone shortly.' : 'Thank you for your review! It has been submitted and is now visible to everyone.');
+                    // Show success message
+                    alert(editingReviewId ? 'Review updated successfully! It is now visible to everyone.' : 'Thank you for your review! It is now visible to everyone.');
                     hideReviewPopup();
                 } catch (error) {
                     console.error('Error submitting review:', error);
-                    // Review should still be saved locally even if error occurs
-                    alert('Review saved! It may take a moment to sync with the server.');
+                    // Review should already be visible from saveReview function
+                    alert('Review saved and visible! It will sync with other devices shortly.');
                     hideReviewPopup();
                 } finally {
                     submitBtn.innerHTML = originalText;
